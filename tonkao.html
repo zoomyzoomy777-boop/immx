@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tonkao Skeleton</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Michroma&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+:root{--void:#000;--fg:#fff;--muted:#a59cc4}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--void);color:var(--fg);font-family:'JetBrains Mono',monospace;overflow:hidden}
+canvas{display:block;width:100%;height:100%;touch-action:none}
+.hud{position:fixed;top:16px;left:16px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.hud b{display:block;font:400 18px Michroma,sans-serif;letter-spacing:.06em;color:var(--fg);margin-bottom:4px}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="hud"><b>TONKAO</b><span id="info">loading…</span></div>
+
+<script type="importmap">
+{"imports":{
+  "three":"https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
+  "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"
+}}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
+
+const MODEL_URL = 'models/tonkao.glb';
+
+const canvas = document.getElementById('c');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x05010d);
+const camera = new THREE.PerspectiveCamera(35, 1, 0.01, 100);
+camera.position.set(4.6, 2.2, 4.6);
+const controls = new OrbitControls(camera, canvas);
+controls.target.set(0, 1.1, 0);
+controls.enableDamping = true;
+controls.autoRotate = true;
+controls.autoRotateSpeed = 1.2;
+
+scene.add(new THREE.HemisphereLight(0xcfc4ff, 0x14002e, 1.4));
+const key = new THREE.DirectionalLight(0xffffff, 2.2); key.position.set(3, 4, 2); scene.add(key);
+const rim = new THREE.DirectionalLight(0x7101ff, 3); rim.position.set(-3, 1, -3); scene.add(rim);
+
+const material = new THREE.MeshStandardMaterial({ color: 0xe9e2d4, roughness: 0.55, metalness: 0.05 });
+
+// Mouse interaction: hover glows the bone under the cursor, drag pulls it and it springs back.
+// The model has no rig, so the deformation is a soft falloff around the grabbed point in the vertex shader.
+// All points are in the mesh's local space.
+const fx = {
+  uHover: { value: new THREE.Vector3() }, uHoverAmt: { value: 0 },
+  uGrab: { value: new THREE.Vector3() }, uOffset: { value: new THREE.Vector3() },
+  uRadius: { value: 0.3 }, uGlow: { value: new THREE.Color(0x7101ff) },
+};
+material.onBeforeCompile = s => {
+  Object.assign(s.uniforms, fx);
+  s.vertexShader = s.vertexShader
+    .replace('#include <common>', `#include <common>
+      uniform vec3 uHover, uGrab, uOffset; uniform float uHoverAmt, uRadius; varying float vGlow;`)
+    .replace('#include <begin_vertex>', `#include <begin_vertex>
+      float gf = 1.0 - smoothstep(0.0, uRadius, distance(position, uGrab));
+      transformed += uOffset * gf * gf;
+      float hf = 1.0 - smoothstep(0.0, uRadius * 0.8, distance(position, uHover));
+      vGlow = max(hf * uHoverAmt, gf * min(length(uOffset) * 6.0, 1.0));`);
+  s.fragmentShader = s.fragmentShader
+    .replace('#include <common>', `#include <common>
+      uniform vec3 uGlow; varying float vGlow;`)
+    .replace('#include <emissivemap_fragment>', `#include <emissivemap_fragment>
+      totalEmissiveRadiance += uGlow * vGlow * 1.6;`);
+};
+
+const loader = new GLTFLoader().setMeshoptDecoder(MeshoptDecoder);
+let mesh = null;
+
+async function load() {
+  const [gltf, res] = await Promise.all([loader.loadAsync(MODEL_URL), fetch(MODEL_URL, { method: 'HEAD' })]);
+  let tris = 0;
+  gltf.scene.traverse(o => {
+    if (!o.isMesh) return;
+    o.geometry.computeVertexNormals(); // normals are stripped from the file to save bytes
+    o.material = material;
+    tris += o.geometry.index.count / 3;
+    mesh = o;
+  });
+  scene.add(gltf.scene);
+  scene.updateMatrixWorld();
+  fx.uRadius.value = 0.32 / mesh.getWorldScale(new THREE.Vector3()).x;
+  const kb = Math.round(res.headers.get('content-length') / 1024);
+  document.getElementById('info').textContent = `${tris.toLocaleString()} tris · ${kb} KB · drag bones to pull · drag space to orbit`;
+}
+
+const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
+const plane = new THREE.Plane(), grabWorld = new THREE.Vector3(), tmp = new THREE.Vector3();
+const target = new THREE.Vector3(), vel = new THREE.Vector3(); // offset target (local) + spring velocity
+let hovering = false, dragging = false;
+
+function hit(e) {
+  if (!mesh) return null;
+  ndc.set(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
+  ray.setFromCamera(ndc, camera);
+  return ray.intersectObject(mesh, false)[0] || null;
+}
+
+// Capture phase so we can claim the drag before OrbitControls sees it.
+canvas.addEventListener('pointerdown', e => {
+  const h = hit(e);
+  if (!h) return;
+  e.stopImmediatePropagation();
+  canvas.setPointerCapture(e.pointerId);
+  dragging = true; controls.enabled = false; controls.autoRotate = false;
+  grabWorld.copy(h.point);
+  fx.uGrab.value.copy(mesh.worldToLocal(h.point.clone()));
+  fx.uOffset.value.set(0, 0, 0); target.set(0, 0, 0); vel.set(0, 0, 0);
+  plane.setFromNormalAndCoplanarPoint(camera.getWorldDirection(tmp).negate(), grabWorld);
+  canvas.style.cursor = 'grabbing';
+}, true);
+
+canvas.addEventListener('pointermove', e => {
+  if (dragging) {
+    hit(e);
+    if (!ray.ray.intersectPlane(plane, tmp)) return;
+    tmp.sub(grabWorld).clampLength(0, 0.7).add(grabWorld);       // limit how far a bone can stretch
+    target.copy(mesh.worldToLocal(tmp)).sub(fx.uGrab.value);
+    return;
+  }
+  const h = hit(e);
+  hovering = !!h;
+  if (h) fx.uHover.value.copy(mesh.worldToLocal(h.point.clone()));
+  canvas.style.cursor = h ? 'grab' : '';
+});
+
+function release() {
+  if (!dragging) return;
+  dragging = false; controls.enabled = true; controls.autoRotate = true;
+  target.set(0, 0, 0); // spring back
+  canvas.style.cursor = hovering ? 'grab' : '';
+}
+canvas.addEventListener('pointerup', release);
+canvas.addEventListener('pointercancel', release);
+canvas.addEventListener('pointerleave', () => { hovering = false; });
+
+const clock = new THREE.Clock();
+function tick() {
+  const dt = Math.min(clock.getDelta(), 1 / 30);
+  fx.uHoverAmt.value += ((hovering && !dragging ? 1 : 0) - fx.uHoverAmt.value) * Math.min(dt * 10, 1);
+  // Stiff follow while dragging, bouncy wobble after release.
+  const k = dragging ? 260 : 140, damp = dragging ? 26 : 7;
+  const off = fx.uOffset.value;
+  vel.addScaledVector(tmp.copy(target).sub(off), k * dt).multiplyScalar(Math.exp(-damp * dt));
+  off.addScaledVector(vel, dt);
+}
+
+function resize() {
+  renderer.setSize(innerWidth, innerHeight, false);
+  camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
+}
+addEventListener('resize', resize); resize();
+renderer.setAnimationLoop(() => { tick(); controls.update(); renderer.render(scene, camera); });
+load();
+</script>
+</body>
+</html>

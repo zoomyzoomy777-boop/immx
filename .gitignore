@@ -4,3 +4,9 @@ desktop.ini
 .vscode/
 .idea/
 _site/
+# raw download archive (900+ MB, over GitHub's 100 MB file limit)
+2Dani/*.zip
+# original GIFs stay local; the site uses 2Dani/web and 2Dani/preview (tools/build_2dani.py)
+2Dani/รวมงาน-*/
+# raw Memories of Sacrifice exports stay local; the site uses work/memories-of-sacrifice
+work/Memories of Sacrifice/

@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Memories of Sacrifice · Immertech X</title>
+<meta name="description" content="Memories of Sacrifice — a spirit zoo built in Unreal Engine, where a skeletal deer watches in silence.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Michroma&family=Archivo:wdth,wght@62..125,300..800&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+Thai:wght@300;400;500&display=swap">
+<style>
+/* Layout: cinematic case study — flythrough hero, concept, world gallery, animation process, point-cloud sim, identity, credits by the fire */
+:root{
+  --void:#000000;
+  --ink:#0b0418;
+  --indigo:#1d0556;
+  --violet:#7101ff;
+  --magenta:#4cff16;
+  --orange:#ff3600;
+  --lantern:#7fe3ff; /* the cyan of the lanterns in the scene */
+  --fg:#ffffff;
+  --muted:#a59cc4;
+  --line:rgba(255,255,255,.14);
+  --display:"Michroma","Technovier","Archivo","Noto Sans Thai",system-ui,sans-serif;
+  --body:"Archivo","Noto Sans Thai",system-ui,sans-serif;
+  --mono:"JetBrains Mono","Noto Sans Thai",ui-monospace,Menlo,monospace;
+  --gut:clamp(16px,4vw,56px);
+  --max:1500px;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--void);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+img,video{display:block;max-width:100%}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--magenta);outline-offset:3px}
+.mono{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase}
+.wrap{max-width:calc(var(--max) + 2*var(--gut));margin:0 auto;padding-inline:var(--gut)}
+
+/* NAV */
+.nav{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;justify-content:space-between;gap:24px;padding:calc(18px + env(safe-area-inset-top,0px)) var(--gut) 18px;transition:background .3s,backdrop-filter .3s}
+.nav.solid{background:rgba(0,0,0,.72);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.nav .brand{font-family:var(--display);font-size:15px;letter-spacing:.08em;white-space:nowrap}
+.nav .brand b{color:var(--violet);font-weight:400}
+.nav ul{display:flex;gap:28px;list-style:none;margin:0;padding:0}
+.nav ul a{font-family:var(--display);font-weight:400;font-size:11px;letter-spacing:.14em;position:relative;padding-block:6px;white-space:nowrap}
+.nav ul a::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--magenta);transform:scaleX(0);transform-origin:left;transition:transform .35s}
+.nav ul a:hover::after,.nav ul a.on::after{transform:scaleX(1)}
+
+/* HERO */
+.hero{position:relative;min-height:100svh;display:grid;align-items:end;overflow:hidden;background:#000 url(work/memories-of-sacrifice/hero.webp) center/cover no-repeat}
+.hero video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.85) saturate(1.05)}
+.hero::before{content:"";position:absolute;inset:0;z-index:1;background:
+  radial-gradient(ellipse at 50% 40%,transparent 35%,rgba(0,0,0,.7) 100%),
+  linear-gradient(rgba(0,0,0,.45),transparent 25%,transparent 45%,rgba(0,0,0,.85) 80%,var(--void))}
+.hero .in{position:relative;z-index:2;padding-top:140px;padding-bottom:clamp(40px,7vw,90px);display:grid;gap:20px;width:100%}
+.hero h1{margin:0;font-family:var(--display);font-weight:400;font-size:clamp(34px,7.4vw,120px);line-height:1;letter-spacing:0;text-shadow:0 4px 40px rgba(0,0,0,.8)}
+.hero .quote{margin:0;font-size:clamp(17px,1.8vw,24px);font-weight:300;color:#c8102e;text-shadow:0 0 24px rgba(200,16,46,.5)}
+.hero .meta{display:flex;flex-wrap:wrap;gap:8px 22px;color:var(--muted)}
+.back{display:inline-flex;align-items:center;gap:10px;color:var(--muted);width:max-content}
+.back:hover{color:var(--fg)}
+.scroll-cue{position:absolute;z-index:2;right:var(--gut);bottom:clamp(40px,7vw,90px);display:grid;justify-items:center;gap:8px;color:var(--muted)}
+.scroll-cue span{width:1px;height:42px;background:linear-gradient(var(--fg),transparent);animation:cue 2.2s ease-in-out infinite}
+@keyframes cue{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+
+/* INTRO */
+.intro{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.7fr);gap:clamp(30px,6vw,100px);padding-block:clamp(60px,9vw,130px)}
+.facts{display:grid;gap:18px;align-content:start;margin:0}
+.facts div{display:grid;gap:4px;border-top:1px solid var(--line);padding-top:12px}
+.facts dt{color:var(--muted)}
+.facts dd{margin:0;letter-spacing:.06em}
+.story{display:grid;gap:22px}
+.story .lead{margin:0;font-size:clamp(20px,2.3vw,32px);line-height:1.5;font-weight:300;text-wrap:pretty}
+.story p{margin:0;color:#dcd6f2;max-width:64ch;font-size:clamp(15px,1.15vw,17px)}
+.story .en{color:var(--muted)}
+
+/* SECTION HEADS */
+.sec{padding-block:clamp(50px,7vw,100px)}
+.head{display:grid;grid-template-columns:auto 1fr;gap:6px 22px;align-items:baseline;margin-bottom:clamp(24px,3vw,40px)}
+.head .no{color:var(--violet)}
+.head h2{margin:0;font-family:var(--display);font-weight:400;font-size:clamp(22px,3.4vw,46px);line-height:1.1}
+.head p{grid-column:2;margin:6px 0 0;color:#dcd6f2;max-width:62ch}
+@media (max-width:640px){.head{grid-template-columns:1fr}.head p{grid-column:1}}
+
+/* WORLD GALLERY */
+.world{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.world .shot{aspect-ratio:16/9}
+.shot{position:relative;margin:0;padding:0;border:0;background:var(--ink);overflow:hidden;cursor:zoom-in}
+.shot img{width:100%;height:100%;object-fit:cover;filter:brightness(.82);transition:transform 1s cubic-bezier(.2,.7,.2,1),filter .5s}
+.shot:hover img,.shot:focus-visible img{transform:scale(1.05);filter:brightness(1.05)}
+.shot figcaption{position:absolute;left:12px;bottom:10px;color:var(--fg);opacity:0;transform:translateY(6px);transition:.4s;text-shadow:0 1px 8px #000}
+.shot:hover figcaption,.shot:focus-visible figcaption{opacity:1;transform:none}
+
+/* ANIMATION */
+.duo{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:6px}
+.media{position:relative;margin:0;background:var(--ink);overflow:hidden}
+.media video,.media img{width:100%;height:100%;object-fit:cover}
+.media.rig img{object-fit:contain;filter:invert(1) hue-rotate(180deg)}
+.media.rig{background:#000}
+.cap{display:flex;justify-content:space-between;gap:16px;padding:12px 2px 0;color:var(--muted)}
+.cap p{margin:0;font-family:var(--body);font-size:14px;letter-spacing:0;text-transform:none;color:#dcd6f2}
+.tag{position:absolute;z-index:2;top:10px;left:10px;background:rgba(0,0,0,.7);padding:3px 8px;border-radius:3px;font-size:10px}
+
+.poses{margin-top:clamp(30px,4vw,56px)}
+.poses .bar{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:12px;color:var(--muted)}
+.poses .bar button{background:none;border:1px solid var(--line);border-radius:999px;width:38px;height:38px;cursor:pointer;transition:.3s}
+.poses .bar button:hover{border-color:var(--magenta);color:var(--magenta)}
+.strip{display:flex;gap:6px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:thin;scrollbar-color:var(--violet) transparent;cursor:grab;padding-bottom:10px}
+.strip.drag{cursor:grabbing;user-select:none;scroll-snap-type:none}
+.strip img{flex:0 0 auto;height:clamp(180px,26vw,360px);width:auto;scroll-snap-align:start;filter:invert(1) hue-rotate(180deg) brightness(.92);-webkit-user-drag:none;background:#fff}
+
+/* SHATTER */
+.shatter{display:grid;justify-items:center;margin-bottom:clamp(40px,6vw,80px)}
+.shatter .media{width:100%;aspect-ratio:16/9;box-shadow:0 30px 120px rgba(113,1,255,.12)}
+.shatter .txt{max-width:56ch;text-align:center;margin-top:20px;display:grid;gap:8px}
+.shatter .txt p{margin:0;color:#dcd6f2}
+
+/* IDENTITY */
+.ident{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.ident .shot{grid-column:auto;grid-row:auto;aspect-ratio:16/9}
+
+/* CREDITS */
+.credits{position:relative;padding-block:clamp(90px,12vw,170px);overflow:hidden;background:#000}
+.credits .bg{position:absolute;inset:0;background:url(work/memories-of-sacrifice/fire.webp) 70% 50%/cover no-repeat;opacity:.75}
+.credits::before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(90deg,rgba(0,0,0,.92) 0%,rgba(0,0,0,.75) 45%,rgba(0,0,0,.1) 100%),linear-gradient(var(--void),transparent 20%,transparent 80%,var(--void))}
+.credits .wrap{position:relative;z-index:2}
+.credits h2{margin:0 0 32px;font-family:var(--display);font-weight:400;font-size:clamp(22px,3.4vw,46px);line-height:1.1}
+.team{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,280px));gap:0 40px}
+.team li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px;align-items:baseline;padding:11px 0;border-bottom:1px solid var(--line)}
+.team b{font-weight:400}
+.team span{color:var(--muted);font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;white-space:nowrap}
+
+/* NEXT */
+.next{display:flex;justify-content:space-between;align-items:center;gap:20px;padding-block:clamp(40px,6vw,70px);border-top:1px solid var(--line)}
+.next b{font-family:var(--display);font-weight:400;font-size:clamp(20px,3.6vw,48px);line-height:1.1;transition:color .3s}
+.next:hover b{color:var(--magenta)}
+.base{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;border-top:1px solid var(--line);padding-block:22px 28px;color:var(--muted)}
+
+/* LIGHTBOX */
+.lb{border:0;padding:0;margin:auto;background:none;max-width:min(96vw,1700px);max-height:94vh;overflow:visible}
+.lb::backdrop{background:rgba(0,0,0,.92);backdrop-filter:blur(6px)}
+.lb img{max-width:min(96vw,1700px);max-height:86vh;width:auto;height:auto;margin:0 auto}
+.lb .cap{justify-content:center}
+.lb button{position:fixed;top:16px;right:16px;background:rgba(0,0,0,.6);border:1px solid var(--line);border-radius:999px;width:42px;height:42px;cursor:pointer;font-size:18px}
+.lb button:hover{border-color:var(--magenta)}
+
+/* reveal */
+.rv{transition:opacity .9s ease,transform .9s cubic-bezier(.2,.7,.2,1)}
+.js .rv.pre{opacity:.001;transform:translateY(24px)}
+
+@media (max-width:900px){
+  .intro{grid-template-columns:1fr}
+  .world{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .shot figcaption{opacity:1;transform:none}
+  .duo{grid-template-columns:1fr}
+  .team{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width:520px){
+  .nav ul{gap:14px}
+  .nav ul a{font-size:10px;letter-spacing:.08em}
+  .nav .brand span{display:none}
+  .ident{grid-template-columns:1fr}
+  .scroll-cue{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .js .rv.pre{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav" id="nav">
+  <a href="index.html" class="brand" aria-label="Immertech X home"><span>IMMERTECH </span><b>X</b></a>
+  <ul>
+    <li><a href="memories-of-sacrifice.html" class="on">WORK</a></li>
+    <li><a href="2danimation.html">2D ANIMATION</a></li>
+    <li><a href="index.html#contact">CONTACT</a></li>
+  </ul>
+</nav>
+
+<header class="hero">
+  <video id="reel" muted loop playsinline preload="metadata" poster="work/memories-of-sacrifice/hero.webp" aria-hidden="true">
+    <source src="work/memories-of-sacrifice/flythrough.mp4" type="video/mp4">
+  </video>
+  <div class="in wrap">
+    <a href="index.html" class="back mono">← Home</a>
+    <div class="meta mono"><span>Interactive Mapping</span><span>2024</span><span>Unreal Engine</span></div>
+    <h1>Memories of Sacrifice</h1>
+    <p class="quote">“เราคือหนึ่งเดียวกับสรรพสิ่ง ท่ามกลางจุดจบและจุดเริ่มต้น”</p>
+  </div>
+  <div class="scroll-cue mono" aria-hidden="true"><span></span>Scroll</div>
+</header>
+
+<main>
+  <section class="intro wrap">
+    <dl class="facts mono rv">
+      <div><dt>Project</dt><dd>Memories of Sacrifice</dd></div>
+      <div><dt>Year</dt><dd>2024</dd></div>
+      <div><dt>Format</dt><dd>Interactive Mapping</dd></div>
+      <div><dt>Engine</dt><dd>Unreal Engine</dd></div>
+      <div><dt>Our role</dt><dd>Concept, 3D, Rigging, Animation, Unreal</dd></div>
+    </dl>
+    <div class="story rv">
+      <p class="lead">หากถามว่าโปรเจ็คนี้เกิดขึ้นได้อย่างไร คงคล้ายกับการที่เราเฝ้ามองโลกใบนี้เคลื่อนตัวไปอย่างช้า ๆ มาเป็นเวลาเนิ่นนาน ตั้งแต่อดีตจนถึงปัจจุบัน</p>
+      <p>จนจุดประกายความคิดสร้างสรรค์ที่เราอยากถ่ายทอดผ่านความเกรี้ยวกราดของธรรมชาติ ผืนป่า รวมถึงสรรพสิ่งที่คอยสะท้อนเรื่องราวของธรรมชาติกับมนุษย์ในมุมมองผู้มาเยือน</p>
+      <p class="en">A spirit zoo where a deer watches in silence: a symbol of death, loneliness and an attachment that never ends. It cannot speak or act. It can only watch, the way the forest and everything in it seems to watch us back.</p>
+    </div>
+  </section>
+
+  <section class="sec wrap" aria-labelledby="h-world">
+    <div class="head rv"><span class="no mono">01</span><h2 id="h-world">The World</h2>
+      <p>ทุ่งข้าวโพดยามค่ำคืน ตะเกียงที่แขวนเรียงตามทาง กองไฟ และกระดูกที่ถูกทิ้งไว้ สร้างขึ้นทั้งหมดใน Unreal Engine</p></div>
+    <div class="world" id="world">
+      <figure class="shot" tabindex="0"><img src="work/memories-of-sacrifice/lanterns.webp" alt="Lantern-lit path through the cornfield at night" loading="lazy"><figcaption class="mono">The path</figcaption></figure>
+      <figure class="shot" tabindex="0"><img src="work/memories-of-sacrifice/skull-post.webp" alt="Antlered skull mounted on a post in the corn" loading="lazy"><figcaption class="mono">Totem</figcaption></figure>
+      <figure class="shot" tabindex="0"><img src="work/memories-of-sacrifice/fire.webp" alt="Campfire with rising smoke and sparks" loading="lazy"><figcaption class="mono">The fire</figcaption></figure>
+      <figure class="shot" tabindex="0"><img src="work/memories-of-sacrifice/crate.webp" alt="Wooden crate caught in a flashlight beam" loading="lazy"><figcaption class="mono">Found footage</figcaption></figure>
+      <figure class="shot" tabindex="0"><img src="work/memories-of-sacrifice/bones.webp" alt="Crate filled with bones under a flashlight" loading="lazy"><figcaption class="mono">Remains</figcaption></figure>
+      <figure class="shot" tabindex="0"><img src="work/memories-of-sacrifice/skull-star.webp" alt="Ram skull nailed to a wooden star" loading="lazy"><figcaption class="mono">Offering</figcaption></figure>
+      <figure class="shot" tabindex="0"><img src="work/memories-of-sacrifice/forest.webp" alt="Skeletal deer standing in a misty forest" loading="lazy"><figcaption class="mono">The watcher</figcaption></figure>
+      <figure class="shot" tabindex="0"><img src="work/memories-of-sacrifice/corn.webp" alt="Bones and a watering can at the foot of a post in the corn" loading="lazy"><figcaption class="mono">Harvest</figcaption></figure>
+    </div>
+  </section>
+
+  <section class="sec wrap" aria-labelledby="h-anim">
+    <div class="head rv"><span class="no mono">02</span><h2 id="h-anim">Bringing the deer to life</h2>
+      <p>ใช้ AI ดึง animation assets ที่มีอยู่มาผสมกัน (blend) เพื่อให้ตัวละครกวางดูมีชีวิต</p></div>
+    <div class="shatter">
+      <figure class="media rv">
+        <video class="auto" muted loop playsinline preload="none" poster="work/memories-of-sacrifice/shatter-poster.webp" aria-label="Point-cloud deer shattering and falling to the ground">
+          <source src="work/memories-of-sacrifice/tonkao-walkshatter.webm" type="video/webm">
+          <source src="work/memories-of-sacrifice/tonkao-walkshatter.mp4" type="video/mp4">
+        </video></figure>
+      <div class="txt rv">
+        <p>ผลการจำลองฟิสิกส์ของโมเดลสัตว์ (กวาง) ที่ทำจาก point cloud ซึ่งค่อย ๆ แตกเป็นชิ้นแล้วร่วงลงพื้น แสดงเป็นลำดับเฟรมตามเวลา</p>
+        <span class="mono" style="color:var(--muted)">Physics simulation · 15s</span>
+      </div>
+    </div>
+    <div class="duo">
+      <div>
+        <figure class="media" style="aspect-ratio:1280/688"><span class="tag mono">Unreal · Blend test</span>
+          <video class="auto" muted loop playsinline preload="none" poster="work/memories-of-sacrifice/blend-poster.webp" aria-label="Animation blend test of the skeletal deer in Unreal Engine">
+            <source src="work/memories-of-sacrifice/blend-animation.mp4" type="video/mp4">
+          </video></figure>
+        <div class="cap mono"><p>AI-assisted blending of existing animation assets</p><span>16s</span></div>
+      </div>
+      <div>
+        <figure class="media rig" style="aspect-ratio:16/9"><span class="tag mono">Rig</span>
+          <img src="work/memories-of-sacrifice/rig.webp" alt="Deer skeleton rig, side and front views" loading="lazy"></figure>
+        <div class="cap mono"><p>Quadruped rig, side and front</p><span>Rigging</span></div>
+      </div>
+    </div>
+    <div class="poses">
+      <div class="bar mono"><span>Pose library · drag to scroll</span>
+        <span><button type="button" data-dir="-1" aria-label="Scroll poses left">←</button> <button type="button" data-dir="1" aria-label="Scroll poses right">→</button></span></div>
+      <div class="strip" id="strip">
+        <img src="work/memories-of-sacrifice/poses-01.webp" alt="Pose sheet 1" loading="lazy">
+        <img src="work/memories-of-sacrifice/poses-02.webp" alt="Pose sheet 2" loading="lazy">
+        <img src="work/memories-of-sacrifice/poses-03.webp" alt="Pose sheet 3" loading="lazy">
+        <img src="work/memories-of-sacrifice/poses-04.webp" alt="Pose sheet 4" loading="lazy">
+        <img src="work/memories-of-sacrifice/poses-05.webp" alt="Pose sheet 5" loading="lazy">
+        <img src="work/memories-of-sacrifice/poses-06.webp" alt="Pose sheet 6" loading="lazy">
+        <img src="work/memories-of-sacrifice/poses-07.webp" alt="Pose sheet 7" loading="lazy">
+        <img src="work/memories-of-sacrifice/poses-08.webp" alt="Pose sheet 8" loading="lazy">
+        <img src="work/memories-of-sacrifice/poses-09.webp" alt="Pose sheet 9" loading="lazy">
+        <img src="work/memories-of-sacrifice/poses-10.webp" alt="Pose sheet 10" loading="lazy">
+        <img src="work/memories-of-sacrifice/poses-11.webp" alt="Pose sheet 11" loading="lazy">
+      </div>
+    </div>
+  </section>
+
+  <section class="sec wrap" aria-label="Logo and posters">
+    <div class="head rv"><span class="no mono">03</span>
+      <p style="margin-top:0">สำรวจโลโก้หลายแบบ และโปสเตอร์ทั้งช่วง pre-promote และ post-promote</p></div>
+    <div class="ident">
+      <figure class="shot" tabindex="0"><img src="work/memories-of-sacrifice/logo.webp" alt="Logo explorations for Memories of Sacrifice" loading="lazy"><figcaption class="mono">Logo</figcaption></figure>
+      <figure class="shot" tabindex="0"><img src="work/memories-of-sacrifice/poster.webp" alt="Pre-promote and post-promote posters" loading="lazy"><figcaption class="mono">Posters</figcaption></figure>
+    </div>
+  </section>
+
+  <section class="credits" aria-labelledby="h-team">
+    <div class="bg" aria-hidden="true"></div>
+    <div class="wrap">
+      <span class="mono" style="color:var(--muted)">Credits</span>
+      <h2 id="h-team">Team Members</h2>
+      <ul class="team">
+        <li><b>Firsttsu</b><span>R&amp;D</span></li>
+        <li><b>วันวิภู ราชเมืองฝาง</b><span>Concept Art</span></li>
+        <li><b>ณัฐกิจ โกษะนะกิจ</b><span>Unreal Artist</span></li>
+        <li><b>ธีรนัย บัวจันทร์</b><span>Rigger</span></li>
+        <li><b>วรนิษฐา มังกาวรกิจ</b><span>Animator</span></li>
+        <li><b>รังสิวุฒิ สมบูรณ์วงศ์</b><span>Animator</span></li>
+        <li><b>Dreamin</b><span>Modeler</span></li>
+        <li><b>ภาคิน เชียรบริวาร</b><span>Animator</span></li>
+        <li><b>เหมศิรัญญ์ กลิ่นสกุล</b><span>Animator</span></li>
+        <li><b>ศราวดี เร็วเรียน</b><span>Animator</span></li>
+        <li><b>วัชรชัย แฝงกลาง</b><span>Animator</span></li>
+        <li><b>ณัฏฐ์ลิตา ศุภกิจเจริญ</b><span>Unreal Artist</span></li>
+        <li><b>ณัฏฐณิชา ทวีนา</b><span>Modeler</span></li>
+        <li><b>ปิยวรรณ พากเพียร</b><span>2D Artist</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <a class="next" href="2danimation.html"><span class="mono" style="color:var(--muted)">Next</span><b>2D Animation →</b></a>
+    <div class="base mono"><span>© 2026 Immertech X</span><a href="index.html#contact">Contact</a></div>
+  </div>
+</main>
+
+<dialog class="lb" id="lb" aria-label="Image viewer">
+  <button type="button" id="lb-close" aria-label="Close">×</button>
+  <img id="lb-img" alt="">
+  <div class="cap mono"><span id="lb-cap"></span></div>
+</dialog>
+
+<script>
+document.documentElement.classList.add('js');
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* nav turns solid once past the top */
+const navEl = document.getElementById('nav');
+const onScroll = () => navEl.classList.toggle('solid', scrollY > 40);
+addEventListener('scroll', onScroll, {passive:true}); onScroll();
+
+/* hero reel plays unless the visitor prefers reduced motion */
+const reel = document.getElementById('reel');
+if (!reduce) reel.play().catch(()=>{});
+
+/* inline videos only play while on screen */
+const vio = new IntersectionObserver(es => es.forEach(e => {
+  const v = e.target;
+  if (e.isIntersecting && !reduce) { v.preload = 'auto'; v.play().catch(()=>{}); } else v.pause();
+}), {threshold:.25});
+document.querySelectorAll('video.auto').forEach(v => vio.observe(v));
+new IntersectionObserver(([e]) => { if (reduce) return; e.isIntersecting ? reel.play().catch(()=>{}) : reel.pause(); }).observe(reel);
+
+/* reveal on scroll */
+const io = new IntersectionObserver(es => es.forEach(en => { if (en.isIntersecting) { en.target.classList.remove('pre'); io.unobserve(en.target); } }), {threshold:.12});
+document.querySelectorAll('.rv').forEach(el => { if (el.getBoundingClientRect().top > innerHeight) { el.classList.add('pre'); io.observe(el); } });
+
+/* lightbox */
+const lb = document.getElementById('lb'), lbImg = document.getElementById('lb-img'), lbCap = document.getElementById('lb-cap');
+function openShot(fig){
+  const img = fig.querySelector('img');
+  lbImg.src = img.currentSrc || img.src; lbImg.alt = img.alt;
+  lbCap.textContent = img.alt;
+  lb.showModal();
+}
+document.querySelectorAll('.shot').forEach(f => {
+  f.addEventListener('click', () => openShot(f));
+  f.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openShot(f); } });
+});
+document.getElementById('lb-close').addEventListener('click', () => lb.close());
+lb.addEventListener('click', e => { if (e.target === lb) lb.close(); });
+
+/* pose strip: drag to scroll + arrow buttons */
+const strip = document.getElementById('strip');
+let sx = 0, sl = 0, down = false, moved = false;
+strip.addEventListener('pointerdown', e => { if (e.pointerType !== 'mouse') return; down = true; moved = false; sx = e.clientX; sl = strip.scrollLeft; });
+addEventListener('pointermove', e => {
+  if (!down) return;
+  const dx = e.clientX - sx;
+  if (Math.abs(dx) > 4) { moved = true; strip.classList.add('drag'); }
+  strip.scrollLeft = sl - dx;
+});
+addEventListener('pointerup', () => { down = false; strip.classList.remove('drag'); });
+document.querySelectorAll('.poses .bar button').forEach(b => b.addEventListener('click', () =>
+  strip.scrollBy({left: +b.dataset.dir * strip.clientWidth * .8, behavior: reduce ? 'auto' : 'smooth'})));
+</script>
+</body>
+</html>
