@@ -10,6 +10,10 @@ Open `index.html` in a browser, or serve the folder:
 npx serve .
 ```
 
+## Languages (TH / EN / JP)
+
+The language menu in the nav comes from `i18n.js`. To translate an element, give it `data-i18n="key"` (or `data-i18n-attr="alt:key"` for attributes) and add the key with `en`, `th` and `ja` text to the `DICT` in `i18n.js`. The choice is remembered per browser, and `?lang=th|en|ja` in the URL picks one directly.
+
 ## Deploy (GitHub Pages)
 
 Every push to `main` deploys through `.github/workflows/deploy.yml`.

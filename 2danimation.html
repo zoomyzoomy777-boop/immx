@@ -128,17 +128,17 @@ button{font:inherit;color:inherit}
 <nav class="nav" id="nav">
   <a href="index.html" class="brand" aria-label="Immertech X home"><span>IMMERTECH </span><b>X</b></a>
   <ul>
-    <li class="nav-work"><a href="index.html#work">WORK</a></li>
-    <li><a href="memories-of-sacrifice.html">WORK</a></li>
-    <li><a href="2danimation.html" class="on">2D ANIMATION</a></li>
-    <li><a href="index.html#contact">CONTACT</a></li>
+    <li class="nav-work"><a href="index.html#work" data-i18n="nav.work">WORK</a></li>
+    <li><a href="memories-of-sacrifice.html" data-i18n="nav.work">WORK</a></li>
+    <li><a href="2danimation.html" class="on" data-i18n="nav.2d">2D ANIMATION</a></li>
+    <li><a href="index.html#contact" data-i18n="nav.contact">CONTACT</a></li>
   </ul>
 </nav>
 
 <main class="wrap">
   <div class="sky">
-    <h1>2D <em>ANIMATION</em></h1>
-    <p>Every character from our 2D team, standing together. Hover to meet one, click to watch the full loop.</p>
+    <h1 data-i18n="2d.title">2D <em>ANIMATION</em></h1>
+    <p data-i18n="2d.intro">Every character from our 2D team, standing together. Hover to meet one, click to watch the full loop.</p>
     <div class="stats mono" id="stats"></div>
   </div>
   <div class="scroller" id="scroller">
@@ -146,37 +146,38 @@ button{font:inherit;color:inherit}
       <div class="tip mono" id="tip"><b></b><span></span></div>
     </section>
   </div>
-  <div class="bar"><div class="bar-in" id="chips" role="toolbar" aria-label="Highlight a set"><span class="lbl mono">Highlight</span></div></div>
+  <div class="bar"><div class="bar-in" id="chips" role="toolbar" aria-label="Highlight a set"><span class="lbl mono" data-i18n="2d.highlight">Highlight</span></div></div>
 </main>
 
 <div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Animation viewer">
   <div class="lb-top mono">
     <div><span id="lb-group"></span><br><b id="lb-name"></b></div>
-    <button class="ib" id="lb-close" type="button" aria-label="Close">✕</button>
+    <button class="ib" id="lb-close" type="button" aria-label="Close" data-i18n-attr="aria-label:2d.close">✕</button>
   </div>
   <div class="lb-stage" id="lb-stage">
     <img class="ph" id="lb-ph" alt="">
     <img id="lb-img" alt="">
-    <div class="lb-load mono" id="lb-load"><i></i>Loading · <span id="lb-size"></span></div>
+    <div class="lb-load mono" id="lb-load"><i></i><b data-i18n="2d.loading" style="font-weight:inherit">Loading · </b><span id="lb-size"></span></div>
   </div>
   <div class="lb-foot mono">
     <span id="lb-info"></span>
-    <span class="hint">← → to browse · Esc to close</span>
+    <span class="hint" data-i18n="2d.hint">← → to browse · Esc to close</span>
     <div class="lb-nav">
-      <button class="ib" id="lb-prev" type="button" aria-label="Previous">←</button>
-      <button class="ib" id="lb-next" type="button" aria-label="Next">→</button>
+      <button class="ib" id="lb-prev" type="button" aria-label="Previous" data-i18n-attr="aria-label:2d.prev">←</button>
+      <button class="ib" id="lb-next" type="button" aria-label="Next" data-i18n-attr="aria-label:2d.next">→</button>
     </div>
   </div>
 </div>
 
 <footer class="foot">
   <div class="foot-in mono">
-    <a href="index.html">← Back to Immertech X</a>
-    <span>© 2026 Immertech X. All rights reserved.</span>
+    <a href="index.html" data-i18n="2d.back">← Back to Immertech X</a>
+    <span data-i18n="copyright">© 2026 Immertech X. All rights reserved.</span>
   </div>
 </footer>
 <div class="ci-strip" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
 
+<script src="i18n.js"></script>
 <script src="2Dani/gallery-data.js"></script>
 <script>
 const GROUPS = window.ANI_GROUPS || [];
@@ -188,8 +189,9 @@ const pretty = n => n.replace(/^Cat-\d_/,'').replace(/[_-]+/g,' ').replace(/@/g,
 const ALL = [];
 GROUPS.forEach(g => g.items.forEach(it => { it.group = g; it.label = pretty(it.name); ALL.push(it); }));
 
-document.getElementById('stats').innerHTML =
-  `<span>${ALL.length} characters</span><span>${GROUPS.length} sets</span>`;
+const renderStats = () => document.getElementById('stats').innerHTML =
+  `<span>${t('2d.chars', {n: ALL.length})}</span><span>${t('2d.sets', {n: GROUPS.length})}</span>`;
+renderStats();
 
 /* ---------- CROWD LAYOUT ---------- */
 // seeded shuffle so the crowd is mixed but the same on every visit
@@ -227,7 +229,8 @@ rows.forEach((row, r) => {
     const b = document.createElement('button');
     b.type = 'button'; b.className = 'ch';
     b.style.cssText = `--x:${x.toFixed(2)};--b:${bot.toFixed(2)};--h:${h.toFixed(2)};--dim:${(.62 + .38 * depth).toFixed(2)};z-index:${z};max-height:${it.ph}px`;
-    b.setAttribute('aria-label', `${it.label}, ${it.group.title}. Open full animation`);
+    it.aria = () => b.setAttribute('aria-label', t('2d.open', {name: it.label, group: it.group.title}));
+    it.aria();
     b.innerHTML = `<img alt="" width="${it.pw}" height="${it.ph}" decoding="async" src="${url(it.still)}">`;
     b.onclick = () => { if(!dragged && !b.classList.contains('off')) openLb(ALL.indexOf(it)); };
     b.addEventListener('pointerenter', () => { it.hold = true; showTip(it, b); });
@@ -334,7 +337,8 @@ const loadEl = document.createElement('span'); loadEl.className = 'load mono';
 if(!reduce){
   const queue = rows.slice().reverse().flat();
   let done = 0, i = 0;
-  const tick = () => { loadEl.textContent = done < queue.length ? `Waking up ${done}/${queue.length}` : ''; };
+  const tick = () => { loadEl.textContent = done < queue.length ? t('2d.waking', {done, total: queue.length}) : ''; };
+  addEventListener('langchange', tick);
   const next = () => {
     if(i >= queue.length) return;
     const it = queue[i++], pre = new Image();
@@ -370,11 +374,11 @@ function chip(id, label, n){
   const b = document.createElement('button');
   b.type = 'button'; b.className = 'chip'; b.dataset.id = id;
   b.setAttribute('aria-pressed', id === 'all');
-  b.innerHTML = `${label}<span>${n}</span>`;
+  b.innerHTML = `<b style="font-weight:inherit"${id === 'all' ? ' data-i18n="2d.everyone"' : ''}>${label}</b><span>${n}</span>`;
   b.onclick = () => setFilter(id);
   chips.appendChild(b);
 }
-chip('all', 'Everyone', ALL.length);
+chip('all', t('2d.everyone'), ALL.length);
 GROUPS.forEach(g => chip(g.id, g.title, g.items.length));
 chips.appendChild(loadEl);
 
@@ -443,6 +447,8 @@ function spread(id){
 }
 let spreadT;
 addEventListener('resize', () => { clearTimeout(spreadT); spreadT = setTimeout(() => active !== 'all' && spread(active), 150); });
+
+addEventListener('langchange', () => { renderStats(); ALL.forEach(it => it.aria()); if(cur >= 0) show(cur); });
 
 function fromHash(){ const h = location.hash.slice(1); setFilter(GROUPS.some(g => g.id === h) ? h : 'all'); }
 fromHash(); addEventListener('hashchange', fromHash);
