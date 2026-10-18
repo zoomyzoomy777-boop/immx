@@ -864,11 +864,14 @@ async function init() {
   new ResizeObserver(() => { resize(); if (reduceMotion) render(); }).observe(sec);
   resize();
 
-  // camera stays put; the pointer only parts the cloud and leaves a trail
+  // camera stays put; the pointer parts the cloud, leaves a trail, and the whole cloud leans a little toward it
   const ndc = new THREE.Vector2(), ray = new THREE.Raycaster(), plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0), hit = new THREE.Vector3();
   let pushTarget = 0;
+  const follow = { x: 0, y: 0, tx: 0, ty: 0 }; // -1..1 across the section
   sec.addEventListener('pointermove', e => {
-    const r = canvas.getBoundingClientRect();
+    const r = canvas.getBoundingClientRect(), s = sec.getBoundingClientRect();
+    follow.tx = ((e.clientX - s.left) / s.width) * 2 - 1;
+    follow.ty = -(((e.clientY - s.top) / s.height) * 2 - 1);
     drawStar(e.clientX - r.left, r.height - (e.clientY - r.top));
     ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
     ray.setFromCamera(ndc, camera);
@@ -876,7 +879,7 @@ async function init() {
     uniforms.uMouse.value.copy(world.worldToLocal(hit));
     pushTarget = 1;
   });
-  sec.addEventListener('pointerleave', () => { pushTarget = 0; oldStar = null; });
+  sec.addEventListener('pointerleave', () => { pushTarget = 0; oldStar = null; follow.tx = follow.ty = 0; });
 
   let visible = true, last = performance.now();
   new IntersectionObserver(([e]) => { visible = e.isIntersecting; if (visible) { last = performance.now(); loop(); } }).observe(sec);
@@ -885,6 +888,11 @@ async function init() {
     const dt = Math.min((now - last) / 1000, 0.05); last = now;
     uniforms.uTime.value += dt;
     uniforms.uPush.value += (pushTarget - uniforms.uPush.value) * 0.06;
+    // lazy follow: drift and tilt toward the pointer; the cloud's depth turns the tilt into parallax
+    const k = 1 - Math.exp(-2.5 * dt);
+    follow.x += (follow.tx - follow.x) * k; follow.y += (follow.ty - follow.y) * k;
+    world.position.set(follow.x * 0.35, follow.y * 0.22, 0);
+    world.rotation.set(-follow.y * 0.06, follow.x * 0.1, 0);
     starUniforms.timestamp.value += dt * 60; // the reference shader counts time in 60fps frames
     render();
   }
