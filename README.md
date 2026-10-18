@@ -1,10 +1,10 @@
 # zoomyyz
 
-Portfolio site for Watthanatham Sabkerd: a single static `index.html` with no build step.
+Portfolio site for Watthanatham Sabkerd: static HTML pages with no build step. The home page is `immertechx.html`; `index.html` only redirects to it so the site root still works.
 
 ## Run locally
 
-Open `index.html` in a browser, or serve the folder:
+Open `immertechx.html` in a browser, or serve the folder:
 
 ```bash
 npx serve .
