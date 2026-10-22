@@ -1,0 +1,486 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>2D Animation · Immertech X</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Michroma&family=Archivo:wdth,wght@62..125,300..800&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one wide stage, title in the empty sky, every character standing together in overlapping rows along the floor; click one for the full GIF */
+:root{
+  --void:#000000;
+  --ink:#0b0418;
+  --indigo:#1d0556;
+  --violet:#7101ff;
+  --magenta:#4cff16;
+  --orange:#ff3600;
+  --fg:#ffffff;
+  --muted:#a59cc4;
+  --line:rgba(255,255,255,.14);
+  --display:"Michroma","Technovier","Archivo",system-ui,sans-serif;
+  --body:"Archivo",system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  --gut:clamp(16px,4vw,56px);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--void);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+img{display:block;max-width:100%}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--magenta);outline-offset:3px}
+.mono{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase}
+
+/* NAV */
+.nav{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;justify-content:space-between;gap:24px;padding:calc(18px + env(safe-area-inset-top,0px)) var(--gut) 18px;background:rgba(0,0,0,.72);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.nav .brand{font-family:var(--display);font-size:15px;letter-spacing:.08em;white-space:nowrap}
+.nav .brand b{color:var(--violet);font-weight:400}
+.nav ul{display:flex;gap:28px;list-style:none;margin:0;padding:0}
+.nav ul a{font-family:var(--display);font-weight:400;font-size:11px;letter-spacing:.14em;position:relative;padding-block:6px;white-space:nowrap}
+.nav ul a::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--magenta);transform:scaleX(0);transform-origin:left;transition:transform .35s}
+.nav ul a:hover::after,.nav ul a.on::after{transform:scaleX(1)}
+
+/* STAGE */
+.wrap{position:relative;padding:calc(74px + env(safe-area-inset-top,0px)) 0 0}
+.scroller{overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;scrollbar-color:var(--violet) transparent;cursor:grab}
+.scroller.drag{cursor:grabbing;user-select:none}
+.stage{position:relative;isolation:isolate;container-type:size;width:max(100%,1180px);height:max(560px,min(calc(100svh - 74px),62vw));overflow:hidden;
+  background:
+    radial-gradient(ellipse 90% 60% at 50% 105%,rgba(113,1,255,.38),transparent 70%),
+    radial-gradient(ellipse at 50% 0%,var(--indigo) 0%,var(--ink) 45%,var(--void) 90%)}
+.stage::before{content:"";position:absolute;left:0;right:0;bottom:0;height:34%;background:linear-gradient(transparent,rgba(76,255,22,.05));border-top:1px solid var(--line);transform:perspective(600px) rotateX(55deg);transform-origin:bottom;pointer-events:none}
+.sky{position:absolute;z-index:1;left:var(--gut);right:var(--gut);top:calc(74px + env(safe-area-inset-top,0px) + clamp(24px,5vh,70px));display:grid;gap:14px;pointer-events:none}
+.sky > *{pointer-events:auto}
+.sky h1{margin:0;font-family:var(--display);font-weight:400;font-size:clamp(32px,8vw,128px);line-height:1;letter-spacing:0}
+.sky h1 em{font-style:normal;color:var(--violet);text-shadow:0 0 40px rgba(113,1,255,.6)}
+.sky p{margin:0;max-width:56ch;color:#dcd6f2}
+.sky .stats{color:var(--muted);display:flex;gap:22px;flex-wrap:wrap}
+
+.ch{position:absolute;bottom:calc(var(--b) * 1cqh);left:calc(var(--x) * 1%);height:calc(var(--h) * 1cqh);margin:0;padding:0;border:0;background:none;cursor:pointer;
+  transform:translateX(-50%);transform-origin:50% 100%;transition:filter .35s,opacity .35s,left .7s cubic-bezier(.2,.7,.2,1),bottom .7s cubic-bezier(.2,.7,.2,1),height .7s cubic-bezier(.2,.7,.2,1);filter:brightness(var(--dim,1))}
+.ch img{height:100%;width:auto;max-width:none;pointer-events:none;-webkit-user-drag:none;transform:scaleX(var(--f,1));transform-origin:50% 100%;transition:transform .35s cubic-bezier(.2,.7,.2,1)}
+.ch:hover,.ch:focus-visible{filter:brightness(1.15) drop-shadow(0 0 14px rgba(76,255,22,.55));z-index:9999!important;outline:none}
+.ch:hover img,.ch:focus-visible img{transform:scaleX(var(--f,1)) translateY(-4%) scale(1.08)}
+.ch.off{opacity:.12;filter:grayscale(1) brightness(.6);pointer-events:none;cursor:default}
+.stage.focus .ch:not(.off){filter:drop-shadow(0 0 10px rgba(76,255,22,.35))}
+/* the fairy-game monsters are fire creatures, so they glow orange instead */
+.stage.focus[data-set="demo_game_fairy-monster"] .ch:not(.off){filter:drop-shadow(0 0 12px rgba(255,120,20,.6))}
+.stage.focus[data-set="demo_game_fairy-monster"] .ch:hover{filter:brightness(1.15) drop-shadow(0 0 16px rgba(255,120,20,.8))}
+
+.tip{position:absolute;z-index:10000;pointer-events:none;transform:translate(-50%,-100%);background:rgba(0,0,0,.85);border:1px solid var(--line);border-radius:4px;padding:5px 9px;white-space:nowrap;opacity:0;transition:opacity .2s}
+.tip.show{opacity:1}
+.tip b{font-family:var(--body);font-weight:500;font-size:13px;letter-spacing:0;text-transform:none;display:block;color:var(--fg)}
+.tip span{color:var(--muted);font-size:10px}
+
+/* FILTER BAR (below stage) */
+.bar{border-block:1px solid var(--line);background:rgba(0,0,0,.82)}
+.bar-in{max-width:calc(1500px + 2*var(--gut));margin:0 auto;padding:12px var(--gut);display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;align-items:center}
+.bar-in::-webkit-scrollbar{display:none}
+.bar-in .lbl{color:var(--muted);flex:none;margin-right:6px}
+.chip{flex:none;border:1px solid var(--line);border-radius:999px;padding:7px 14px;background:rgba(13,6,32,.55);cursor:pointer;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;transition:.25s}
+.chip span{color:var(--muted);margin-left:6px}
+.chip:hover{border-color:var(--magenta)}
+.chip[aria-pressed="true"]{background:var(--magenta);border-color:var(--magenta);color:#000}
+.chip[aria-pressed="true"] span{color:#000;opacity:.6}
+.load{color:var(--muted);flex:none;margin-left:auto;padding-left:16px}
+
+/* LIGHTBOX */
+.lb{position:fixed;inset:0;z-index:100;display:none;grid-template-rows:auto 1fr auto;background:rgba(0,0,0,.94);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.lb.open{display:grid}
+.lb-top,.lb-foot{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:calc(14px + env(safe-area-inset-top,0px)) var(--gut) 14px;color:var(--muted)}
+.lb-foot{padding:14px var(--gut) calc(14px + env(safe-area-inset-bottom,0px))}
+.lb-top b{color:var(--fg);font-weight:500;font-size:15px;font-family:var(--body);letter-spacing:0;text-transform:none}
+.lb-stage{position:relative;display:grid;place-items:center;min-height:0;padding:0 var(--gut)}
+.lb-stage img{width:auto;height:auto;max-width:100%;max-height:100%;object-fit:contain;grid-area:1/1}
+.lb-stage .ph{opacity:.7}
+.lb-load{position:absolute;inset:auto 0 18px;text-align:center;color:var(--muted)}
+.lb-load[hidden],.lb-stage img[hidden]{display:none}
+.lb-load i{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--orange);box-shadow:0 0 12px var(--orange);margin-right:10px;animation:blink 1.2s steps(2) infinite}
+@keyframes blink{50%{opacity:.2}}
+.ib{width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:rgba(13,6,32,.6);display:grid;place-items:center;cursor:pointer;font-size:18px;transition:.25s;flex:none}
+.ib:hover{background:var(--magenta);border-color:var(--magenta);color:#000}
+.lb-nav{display:flex;gap:10px}
+
+/* FOOT */
+.foot{padding:28px var(--gut);color:var(--muted)}
+.foot-in{max-width:1500px;margin:0 auto;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.foot a:hover{color:var(--magenta)}
+.ci-strip{display:grid;grid-template-columns:repeat(5,1fr);height:6px}.ci-strip i:nth-child(1){background:#000;outline:1px solid var(--line)}.ci-strip i:nth-child(2){background:var(--violet)}.ci-strip i:nth-child(3){background:#fff}.ci-strip i:nth-child(4){background:var(--orange)}.ci-strip i:nth-child(5){background:var(--magenta)}
+
+@media (max-width:520px){
+  .nav ul{gap:14px}
+  .nav ul a{font-size:10px;letter-spacing:.08em}
+  .nav .brand span{display:none}
+  .lb-foot .hint{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav" id="nav">
+  <a href="immertechx.html" class="brand" aria-label="Immertech X home"><span>IMMERTECH </span><b>X</b></a>
+  <ul>
+    <li><a href="memories-of-sacrifice.html" data-i18n="nav.work">WORK</a></li>
+    <li><a href="2danimation.html" class="on" data-i18n="nav.2d">2D ANIMATION</a></li>
+    <li><a href="immertechx.html#contact" data-i18n="nav.contact">CONTACT</a></li>
+  </ul>
+</nav>
+
+<main class="wrap">
+  <div class="sky">
+    <h1 data-i18n="2d.title">2D <em>ANIMATION</em></h1>
+    <p data-i18n="2d.intro">Every character from our 2D team, standing together. Hover to meet one, click to watch the full loop.</p>
+    <div class="stats mono" id="stats"></div>
+  </div>
+  <div class="scroller" id="scroller">
+    <section class="stage" id="stage" aria-label="All 2D animations standing together">
+      <div class="tip mono" id="tip"><b></b><span></span></div>
+    </section>
+  </div>
+  <div class="bar"><div class="bar-in" id="chips" role="toolbar" aria-label="Highlight a set"><span class="lbl mono" data-i18n="2d.highlight">Highlight</span></div></div>
+</main>
+
+<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Animation viewer">
+  <div class="lb-top mono">
+    <div><span id="lb-group"></span><br><b id="lb-name"></b></div>
+    <button class="ib" id="lb-close" type="button" aria-label="Close" data-i18n-attr="aria-label:2d.close">✕</button>
+  </div>
+  <div class="lb-stage" id="lb-stage">
+    <img class="ph" id="lb-ph" alt="">
+    <img id="lb-img" alt="">
+    <div class="lb-load mono" id="lb-load"><i></i><b data-i18n="2d.loading" style="font-weight:inherit">Loading · </b><span id="lb-size"></span></div>
+  </div>
+  <div class="lb-foot mono">
+    <span id="lb-info"></span>
+    <span class="hint" data-i18n="2d.hint">← → to browse · Esc to close</span>
+    <div class="lb-nav">
+      <button class="ib" id="lb-prev" type="button" aria-label="Previous" data-i18n-attr="aria-label:2d.prev">←</button>
+      <button class="ib" id="lb-next" type="button" aria-label="Next" data-i18n-attr="aria-label:2d.next">→</button>
+    </div>
+  </div>
+</div>
+
+<footer class="foot">
+  <div class="foot-in mono">
+    <a href="immertechx.html" data-i18n="2d.back">← Back to Immertech X</a>
+    <span data-i18n="copyright">© 2026 Immertech X. All rights reserved.</span>
+  </div>
+</footer>
+<div class="ci-strip" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+
+<script src="i18n.js"></script>
+<script src="2Dani/gallery-data.js"></script>
+<script>
+const GROUPS = window.ANI_GROUPS || [];
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const url = p => encodeURI(p).replace(/#/g,'%23');
+const mb = b => b >= 1048576 ? (b/1048576).toFixed(b >= 10485760 ? 0 : 1)+' MB' : Math.round(b/1024)+' KB';
+const pretty = n => n.replace(/^Cat-\d_/,'').replace(/[_-]+/g,' ').replace(/@/g,'').replace(/\s+/g,' ').trim();
+
+const ALL = [];
+GROUPS.forEach(g => g.items.forEach(it => { it.group = g; it.label = pretty(it.name); ALL.push(it); }));
+
+const renderStats = () => document.getElementById('stats').innerHTML =
+  `<span>${t('2d.chars', {n: ALL.length})}</span><span>${t('2d.sets', {n: GROUPS.length})}</span>`;
+renderStats();
+
+/* ---------- CROWD LAYOUT ---------- */
+// seeded shuffle so the crowd is mixed but the same on every visit
+let seed = 20261015;
+const rnd = () => (seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296;
+const crowd = ALL.slice();
+for(let i = crowd.length - 1; i > 0; i--){ const j = Math.floor(rnd() * (i + 1)); [crowd[i], crowd[j]] = [crowd[j], crowd[i]]; }
+
+// real (source-pixel) height of each cropped character, so sets keep their relative sizes
+crowd.forEach(it => { const s = Math.min(1, 140/it.h, 200/it.w); it.realH = it.ph / s; });
+const sorted = crowd.map(it => it.realH).sort((a,b) => a-b);
+const median = sorted[sorted.length >> 1] || 1;
+
+// characters drawn smaller than the rest: set id -> [name pattern, size factor]
+const SHRINK = {jmo: [/^cha10_/i, .25], 'demo_game_fairy-hero': [/./, .5]};
+
+const ROWS = 6;
+const rows = Array.from({length: ROWS}, () => []);
+// these sets always stand in the back row; everyone else is dealt across all rows
+const BACK = new Set(['sound_loop']);
+let deal = 0;
+crowd.forEach(it => rows[BACK.has(it.group.id) ? 0 : deal++ % ROWS].push(it));
+
+const stage = document.getElementById('stage');
+const frag = document.createDocumentFragment();
+rows.forEach((row, r) => {
+  const depth = r / (ROWS - 1);              // 0 = back row, 1 = front row
+  const scale = .52 + .48 * depth;
+  const base = 31 - depth * 29;              // floor height in % of stage
+  const n = row.length;
+  row.forEach((it, k) => {
+    const size = Math.min(1.4, Math.max(.72, Math.pow(it.realH / median, .5))) * (SHRINK[it.group.id]?.[0].test(it.name) ? SHRINK[it.group.id][1] : 1);
+    const x = 2 + (k + .5 + (rnd() - .5) * .7) / n * 96 + (r % 2 ? 48 / n : 0) * (rnd() < .5 ? 1 : -1) * .3;
+    const bot = base + (rnd() - .5) * 2, h = 30 * scale * size, z = r * 100 + Math.floor(rnd() * 100);
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'ch';
+    b.style.cssText = `--x:${x.toFixed(2)};--b:${bot.toFixed(2)};--h:${h.toFixed(2)};--dim:${(.62 + .38 * depth).toFixed(2)};z-index:${z};max-height:${it.ph}px`;
+    it.aria = () => b.setAttribute('aria-label', t('2d.open', {name: it.label, group: it.group.title}));
+    it.aria();
+    b.innerHTML = `<img alt="" width="${it.pw}" height="${it.ph}" decoding="async" src="${url(it.still)}">`;
+    b.onclick = () => { if(!dragged && !b.classList.contains('off')) openLb(ALL.indexOf(it)); };
+    b.addEventListener('pointerenter', () => { it.hold = true; showTip(it, b); });
+    b.addEventListener('pointerleave', () => { it.hold = false; hideTip(); });
+    b.addEventListener('focus', () => { it.hold = true; showTip(it, b); });
+    b.addEventListener('blur', () => { it.hold = false; hideTip(); });
+    it.el = b; it.x = it.home = x; it.depth = depth; it.size = size;
+    it.hb = bot; it.hh = h; it.hz = z;
+    frag.appendChild(b);
+  });
+});
+stage.appendChild(frag);
+
+/* ---------- MOTION: floaty ones drift in the air, ones with legs wander along their row ---------- */
+// face: which way the drawing looks (1 right, -1 left, 0 front, never flipped); gait: 'cycle' = the art already walks, 'hop' = add a little step bounce
+function motionOf(it){
+  const g = it.group.id, n = it.name;
+  if((g === 'cat' && /-(fly|flap)$/.test(n))
+    || (g === 'jmo' && /^(ch02_n_idle|ch03_n_idle|cha01_idle|cha06_idle|cha07_idle|cha08_idle_|cha10_idle0\d|cha11_idle|cha12_idle|cha13_idle|cha_01_n_idle01)$/i.test(n))
+    || (g === 'demo_game_fairy-hero' && /^cha1[89]-/.test(n))) return {type:'float'};
+  if(g === 'ctx') return /^staff/.test(n) ? {type:'walk', face:0, gait:'hop', speed:1.4} : {type:'walk', face:1, gait:'cycle', speed:/run/.test(n) ? 6 : 2.6};
+  if(g === 'demo_game_fairy-monster' && /-(walk|run)$/.test(n)) return {type:'walk', face:/^(boss03|mons03)/.test(n) ? 0 : -1, gait:'cycle', speed:/run/.test(n) ? 5 : 2.2};
+  if(g === 'demo_game_fairy-hero' && /-ide?l$/.test(n)) return {type:'walk', face:0, gait:'hop', speed:1.6};
+  if(g === 'jmo'){
+    const roll = n.match(/^Cha9_([LR])_roll$/);
+    if(roll) return {type:'walk', face:roll[1] === 'L' ? -1 : 1, gait:'cycle', speed:3};
+    if(/^(cha02_idle|cha03_idle|cha04_idle|cha05_idle|cha_04_n_idle|main_01)$/i.test(n)) return {type:'walk', face:0, gait:'hop', speed:1.6};
+  }
+  if(g === 'sjl') return {type:'walk', face:/^19_/.test(n) ? 1 : /^38_/.test(n) ? 0 : -1, gait:'cycle', speed:1.6};
+  if(g === 'intern') return {type:'walk', face:0, gait:'hop', speed:1.5};
+  return null;
+}
+
+const movers = [];
+crowd.forEach(it => {
+  const m = motionOf(it);
+  if(!m) return;
+  Object.assign(it, m, {t:0, dx:0, rnd:rnd()});
+  const k = .55 + .45 * it.depth;            // back rows are farther away, so they cover less ground
+  if(m.type === 'float'){
+    it.lift = 7 + rnd() * 10;                // cqh above their spot on the floor
+    it.ax = 2.5 + rnd() * 5; it.ay = 1.5 + rnd() * 2.5;
+    it.w1 = .18 + rnd() * .2; it.w2 = .4 + rnd() * .3; it.w3 = .5 + rnd() * .5;
+    it.p1 = rnd() * 7; it.p2 = rnd() * 7; it.p3 = rnd() * 7;
+  } else {
+    it.speed *= k * (.8 + rnd() * .4);
+    it.range = (m.gait === 'cycle' ? 14 : 8) + rnd() * 10;
+    it.target = it.x; it.wait = rnd() * 2; it.dir = rnd() < .5 ? -1 : 1;
+  }
+  movers.push(it);
+});
+
+function pickTarget(it){
+  // while highlighted, `lane` keeps a walker inside the gap between its neighbours
+  const lo = Math.max(it.lane ? it.lane[0] : 3, it.x - it.range), hi = Math.min(it.lane ? it.lane[1] : 97, it.x + it.range);
+  if(hi - lo < 1){ it.target = it.x + it.dx; return; }
+  let tx = lo + rnd() * (hi - lo);
+  if(Math.abs(tx - (it.x + it.dx)) < 3) tx = it.x + it.dx < (lo + hi) / 2 ? hi : lo;
+  it.target = tx;
+}
+
+function stepMotion(it, dt){
+  if(it.type === 'float'){
+    it.t += dt;
+    const t = it.t;
+    const dx = (it.ax * Math.sin(t * it.w1 + it.p1) + it.ax * .35 * Math.sin(t * it.w2 + it.p2)) * (it.lane ? it.lane[2] : 1);
+    // highlighted floaters bob just above their spot instead of lifting into the tier behind
+    const dy = (it.lane ? it.ay : it.lift) + it.ay * Math.sin(t * it.w3 + it.p3);
+    const rot = 4 * Math.cos(t * it.w1 + it.p1) * (it.ax / 7);
+    it.el.style.transform = `translate(calc(-50% + ${dx.toFixed(2)}cqw), ${(-dy).toFixed(2)}cqh) rotate(${rot.toFixed(2)}deg)`;
+    return;
+  }
+  let moving = false;
+  if(it.wait > 0){ it.wait -= dt; if(it.wait <= 0) pickTarget(it); }
+  else {
+    const pos = it.x + it.dx, d = it.target - pos;
+    const dir = Math.sign(d) || it.dir;
+    if(dir !== it.dir){ it.dir = dir; if(it.face) it.el.style.setProperty('--f', it.dir * it.face); }
+    const s = it.speed * dt;
+    if(Math.abs(d) <= s){
+      it.dx = it.target - it.x;
+      // walk-cycle art looks odd standing still, so those barely stop
+      it.wait = it.gait === 'cycle' ? (rnd() < .3 ? .4 + rnd() * .8 : .01) : .6 + rnd() * 2.6;
+    } else { it.dx += dir * s; moving = true; }
+  }
+  if(moving) it.t += dt;
+  const hop = it.gait === 'hop' && moving ? Math.abs(Math.sin(it.t * 7 + it.rnd * 6)) * 1.2 * (.55 + .45 * it.depth) : 0;
+  it.el.style.transform = `translate(calc(-50% + ${it.dx.toFixed(2)}cqw), ${(-hop).toFixed(2)}cqh)`;
+}
+
+if(!reduce && movers.length){
+  movers.forEach(it => { if(it.type === 'walk' && it.face) it.el.style.setProperty('--f', it.dir * it.face); });
+  let last = performance.now();
+  const frame = now => {
+    const dt = Math.min(.1, (now - last) / 1000); last = now;
+    if(!lb.classList.contains('open')) movers.forEach(it => { if(!it.hold) stepMotion(it, dt); });
+    requestAnimationFrame(frame);
+  };
+  requestAnimationFrame(frame);
+}
+
+/* swap stills for the animated previews, a few at a time, front rows first */
+const loadEl = document.createElement('span'); loadEl.className = 'load mono';
+if(!reduce){
+  const queue = rows.slice().reverse().flat();
+  let done = 0, i = 0;
+  const tick = () => { loadEl.textContent = done < queue.length ? t('2d.waking', {done, total: queue.length}) : ''; };
+  addEventListener('langchange', tick);
+  const next = () => {
+    if(i >= queue.length) return;
+    const it = queue[i++], pre = new Image();
+    pre.onload = pre.onerror = () => { if(pre.naturalWidth) it.el.firstChild.src = pre.src; done++; tick(); next(); };
+    pre.src = url(it.anim);
+  };
+  tick(); for(let c = 0; c < 6; c++) next();
+}
+
+/* ---------- TOOLTIP ---------- */
+const tip = document.getElementById('tip');
+function showTip(it, el){
+  tip.querySelector('b').textContent = it.label;
+  tip.querySelector('span').textContent = it.group.title;
+  const r = el.getBoundingClientRect(), s = stage.getBoundingClientRect();
+  tip.style.left = (r.left + r.width/2 - s.left) + 'px';
+  tip.style.top = Math.max(40, r.top - s.top - 8) + 'px';
+  tip.classList.add('show');
+}
+function hideTip(){ tip.classList.remove('show'); }
+
+/* ---------- DRAG TO PAN (when the stage is wider than the screen) ---------- */
+const sc = document.getElementById('scroller');
+let dragged = false, sx = 0, sl = 0, down = false;
+sc.addEventListener('pointerdown', e => { if(e.pointerType !== 'mouse' || sc.scrollWidth <= sc.clientWidth) return; down = true; dragged = false; sx = e.clientX; sl = sc.scrollLeft; });
+addEventListener('pointermove', e => { if(!down) return; const d = e.clientX - sx; if(Math.abs(d) > 5){ dragged = true; sc.classList.add('drag'); } sc.scrollLeft = sl - d; });
+addEventListener('pointerup', () => { down = false; sc.classList.remove('drag'); setTimeout(() => dragged = false, 0); });
+requestAnimationFrame(() => sc.scrollLeft = (sc.scrollWidth - sc.clientWidth) / 2);
+
+/* ---------- HIGHLIGHT ---------- */
+const chips = document.getElementById('chips');
+function chip(id, label, n){
+  const b = document.createElement('button');
+  b.type = 'button'; b.className = 'chip'; b.dataset.id = id;
+  b.setAttribute('aria-pressed', id === 'all');
+  b.innerHTML = `<b style="font-weight:inherit"${id === 'all' ? ' data-i18n="2d.everyone"' : ''}>${label}</b><span>${n}</span>`;
+  b.onclick = () => setFilter(id);
+  chips.appendChild(b);
+}
+chip('all', t('2d.everyone'), ALL.length);
+GROUPS.forEach(g => chip(g.id, g.title, g.items.length));
+chips.appendChild(loadEl);
+
+let active = 'all';
+function setFilter(id){
+  active = id;
+  chips.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed', c.dataset.id === id));
+  ALL.forEach(it => {
+    const off = id !== 'all' && it.group.id !== id;
+    it.el.classList.toggle('off', off);
+    it.el.tabIndex = off ? -1 : 0;
+    it.el.setAttribute('aria-hidden', off);
+  });
+  stage.classList.toggle('focus', id !== 'all');
+  stage.dataset.set = id;
+  spread(id);
+  history.replaceState(null, '', id === 'all' ? location.pathname : '#'+id);
+}
+/* re-stand the highlighted set in tiers on the floor so no two members overlap:
+   try 1..6 tiers, scale the set down just enough to fit, keep the arrangement that leaves them biggest.
+   Everything is in % of the stage (x of width, bottom/height of height). */
+const FLOOR = 2, ROOF = 52, GAP = 1, TGAP = 2;
+function place(it, x, b, h, z, lane){
+  it.x = x; it.dx = 0; it.lane = lane;
+  it.el.style.setProperty('--x', x.toFixed(2));
+  it.el.style.setProperty('--b', b.toFixed(2));
+  it.el.style.setProperty('--h', h.toFixed(2));
+  it.el.style.zIndex = z;
+  if(it.type === 'walk'){ it.target = x; it.wait = .4 + rnd(); }
+}
+function spread(id){
+  ALL.forEach(it => { if(it.lane) place(it, it.home, it.hb, it.hh, it.hz, null); });
+  if(id === 'all') return;
+  const W = stage.clientWidth, H = stage.clientHeight;
+  const set = ALL.filter(it => it.group.id === id).map(it => {
+    const h = Math.min(30 * it.size, it.ph / H * 100);      // front-row height, never above the preview's own pixels
+    return {it, h, w: h * H / W * it.pw / it.ph, room: it.type === 'float' ? 2 * it.ay : 1.5};
+  });
+  let best = null;
+  for(let T = 1; T <= Math.min(6, set.length); T++){
+    const tiers = Array.from({length: T}, () => ({items: [], w: 0}));
+    set.slice().sort((a, c) => c.w - a.w).forEach(a => {
+      const t = tiers.reduce((m, t) => t.w < m.w ? t : m);
+      t.items.push(a); t.w += a.w;
+    });
+    tiers.forEach(t => { t.h = Math.max(...t.items.map(a => a.h)); t.room = Math.max(...t.items.map(a => a.room)); });
+    const sw = Math.min(...tiers.map(t => (96 - GAP * (t.items.length + 1)) / t.w));
+    const sh = (ROOF - FLOOR - TGAP * (T - 1) - tiers.reduce((s, t) => s + t.room, 0)) / tiers.reduce((s, t) => s + t.h, 0);
+    const s = Math.min(1, sw, sh);
+    if(!best || s > best.s + .01) best = {s, tiers};
+  }
+  const {s, tiers} = best;
+  let bottom = FLOOR;
+  tiers.forEach((t, k) => {
+    const items = t.items.sort((a, c) => a.it.home - c.it.home);
+    const g = (96 - s * t.w) / (items.length + 1);           // even gap between neighbours
+    let x = 2 + g;
+    items.forEach(a => {
+      const w = a.w * s, cx = x + w / 2, half = Math.max(0, g / 2 - GAP / 2);
+      const kx = a.it.type === 'float' ? Math.min(1, half / (a.it.ax * 1.35)) : 1;
+      place(a.it, cx, bottom, a.h * s, 5000 + (tiers.length - k) * 100, [cx - half, cx + half, kx]);
+      x += w + g;
+    });
+    bottom += t.h * s + t.room + TGAP;
+  });
+}
+let spreadT;
+addEventListener('resize', () => { clearTimeout(spreadT); spreadT = setTimeout(() => active !== 'all' && spread(active), 150); });
+
+addEventListener('langchange', () => { renderStats(); ALL.forEach(it => it.aria()); if(cur >= 0) show(cur); });
+
+function fromHash(){ const h = location.hash.slice(1); setFilter(GROUPS.some(g => g.id === h) ? h : 'all'); }
+fromHash(); addEventListener('hashchange', fromHash);
+
+/* ---------- LIGHTBOX ---------- */
+const lb = document.getElementById('lb'), lbImg = document.getElementById('lb-img'), lbPh = document.getElementById('lb-ph'), lbLoad = document.getElementById('lb-load');
+let cur = -1, lastFocus = null;
+const visibleList = () => ALL.filter(it => active === 'all' || it.group.id === active);
+function show(i){
+  const list = visibleList(), it = ALL[i]; cur = i;
+  document.getElementById('lb-group').textContent = `${it.group.title} · ${list.indexOf(it)+1} / ${list.length}`;
+  document.getElementById('lb-name').textContent = it.label;
+  document.getElementById('lb-info').textContent = `${it.fw}×${it.fh} · ${mb(it.fsize)}`;
+  document.getElementById('lb-size').textContent = mb(it.fsize);
+  lbPh.src = url(reduce ? it.still : it.anim); lbPh.hidden = false;
+  lbImg.hidden = true; lbLoad.hidden = false;
+  lbImg.onload = () => { if(cur !== i) return; lbImg.hidden = false; lbPh.hidden = true; lbLoad.hidden = true; };
+  lbImg.width = it.fw; lbImg.height = it.fh;
+  lbImg.src = url(it.full); lbImg.alt = it.label;
+}
+function step(d){
+  const list = visibleList(), k = list.indexOf(ALL[cur]);
+  show(ALL.indexOf(list[(k + d + list.length) % list.length]));
+}
+function openLb(i){ hideTip(); lastFocus = document.activeElement; lb.classList.add('open'); document.body.style.overflow = 'hidden'; show(i); document.getElementById('lb-close').focus(); }
+function closeLb(){ lb.classList.remove('open'); document.body.style.overflow = ''; lbImg.removeAttribute('src'); cur = -1; lastFocus?.focus(); }
+document.getElementById('lb-close').onclick = closeLb;
+document.getElementById('lb-prev').onclick = () => step(-1);
+document.getElementById('lb-next').onclick = () => step(1);
+document.getElementById('lb-stage').addEventListener('click', e => { if(e.target.id === 'lb-stage') closeLb(); });
+addEventListener('keydown', e => {
+  if(!lb.classList.contains('open')) return;
+  if(e.key === 'Escape') closeLb();
+  else if(e.key === 'ArrowRight') step(1);
+  else if(e.key === 'ArrowLeft') step(-1);
+});
+</script>
+</body>
+</html>

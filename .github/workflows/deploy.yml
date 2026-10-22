@@ -26,8 +26,10 @@ jobs:
       - name: Stage site files
         run: |
           mkdir _site
-          cp index.html immertechx.html i18n.js memories-of-sacrifice.html tonkao.html rnd.html particle-trail.html art.html .nojekyll _site/
+          cp index.html immertechx.html i18n.js 2danimation.html memories-of-sacrifice.html tonkao.html .nojekyll _site/
           cp -r img models _site/
+          mkdir _site/2Dani
+          cp -r 2Dani/gallery-data.js 2Dani/preview 2Dani/web _site/2Dani/
           mkdir _site/work
           cp -r work/memories-of-sacrifice _site/work/
 

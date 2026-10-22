@@ -1,10 +1,10 @@
 # zoomyyz
 
-Portfolio site for zoomyyz (Watthanatham Sabkerd): static HTML pages with no build step. The home page is `index.html`; `immertechx.html` only redirects there so old links keep working. The artist is on Instagram as [@zoomyyz](https://www.instagram.com/zoomyyz/).
+Portfolio site for Watthanatham Sabkerd: static HTML pages with no build step. The home page is `immertechx.html`; `index.html` only redirects to it so the site root still works.
 
 ## Run locally
 
-Open `index.html` in a browser, or serve the folder:
+Open `immertechx.html` in a browser, or serve the folder:
 
 ```bash
 npx serve .
