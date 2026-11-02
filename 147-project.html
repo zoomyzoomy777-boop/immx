@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>147 Project · Immertech X</title>
+<meta name="description" content="147 Project — a dark-fantasy game prototype built in Unreal Engine and Unity: a haunted forest, spirit magic and a dress-up system for its characters.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Michroma&family=Archivo:wdth,wght@62..125,300..800&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+Thai:wght@300;400;500&display=swap">
+<style>
+/* Layout: game case study — spirit-magic hero reel, facts + story, forest gameplay, character dress-up, next */
+:root{
+  --void:#000000;
+  --ink:#0b0418;
+  --violet:#7101ff;
+  --magenta:#4cff16;
+  --spirit:#8fd8ff; /* the blue of the spirit roots */
+  --fg:#ffffff;
+  --muted:#a59cc4;
+  --line:rgba(255,255,255,.14);
+  --display:"Michroma","Technovier","Archivo","Noto Sans Thai",system-ui,sans-serif;
+  --body:"Archivo","Noto Sans Thai",system-ui,sans-serif;
+  --mono:"JetBrains Mono","Noto Sans Thai",ui-monospace,Menlo,monospace;
+  --gut:clamp(16px,4vw,56px);
+  --max:1500px;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--void);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+img,video{display:block;max-width:100%}
+:focus-visible{outline:2px solid var(--magenta);outline-offset:3px}
+.mono{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase}
+.wrap{max-width:calc(var(--max) + 2*var(--gut));margin:0 auto;padding-inline:var(--gut)}
+
+/* NAV */
+.nav{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;justify-content:space-between;gap:24px;padding:calc(18px + env(safe-area-inset-top,0px)) var(--gut) 18px;transition:background .3s,backdrop-filter .3s}
+.nav.solid{background:rgba(0,0,0,.72);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.nav .brand{font-family:var(--display);font-size:15px;letter-spacing:.08em;white-space:nowrap}
+.nav .brand b{color:var(--violet);font-weight:400}
+.nav ul{display:flex;gap:28px;list-style:none;margin:0;padding:0}
+.nav ul a{font-family:var(--display);font-weight:400;font-size:11px;letter-spacing:.14em;position:relative;padding-block:6px;white-space:nowrap}
+.nav ul a::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--magenta);transform:scaleX(0);transform-origin:left;transition:transform .35s}
+.nav ul a:hover::after,.nav ul a.on::after{transform:scaleX(1)}
+
+/* HERO */
+.hero{position:relative;min-height:100svh;display:grid;align-items:end;overflow:hidden;background:#000 url(work/147-project/spirit-poster.webp) center/cover no-repeat}
+.hero video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.9) saturate(1.05)}
+.hero::before{content:"";position:absolute;inset:0;z-index:1;background:
+  radial-gradient(ellipse at 50% 40%,transparent 35%,rgba(0,0,0,.7) 100%),
+  linear-gradient(rgba(0,0,0,.45),transparent 25%,transparent 45%,rgba(0,0,0,.85) 80%,var(--void))}
+.hero .in{position:relative;z-index:2;padding-top:140px;padding-bottom:clamp(40px,7vw,90px);display:grid;gap:20px;width:100%}
+.hero h1{margin:0;font-family:var(--display);font-weight:400;font-size:clamp(34px,7.4vw,120px);line-height:1;letter-spacing:0;text-shadow:0 4px 40px rgba(0,0,0,.8)}
+.hero .quote{margin:0;max-width:40ch;font-size:clamp(17px,1.8vw,24px);font-weight:300;color:var(--spirit);text-shadow:0 0 24px rgba(143,216,255,.45)}
+.hero .by{margin:-8px 0 0;font-size:clamp(14px,1.2vw,17px);color:var(--muted);letter-spacing:.02em}
+.hero .meta{display:flex;flex-wrap:wrap;gap:8px 22px;color:var(--muted)}
+.back{display:inline-flex;align-items:center;gap:10px;color:var(--muted);width:max-content}
+.back:hover{color:var(--fg)}
+.scroll-cue{position:absolute;z-index:2;right:var(--gut);bottom:clamp(40px,7vw,90px);display:grid;justify-items:center;gap:8px;color:var(--muted)}
+.scroll-cue span{width:1px;height:42px;background:linear-gradient(var(--fg),transparent);animation:cue 2.2s ease-in-out infinite}
+@keyframes cue{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+
+/* INTRO */
+.intro{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.7fr);gap:clamp(30px,6vw,100px);padding-block:clamp(60px,9vw,130px)}
+.facts{display:grid;gap:18px;align-content:start;margin:0}
+.facts div{display:grid;gap:4px;border-top:1px solid var(--line);padding-top:12px}
+.facts dt{color:var(--muted)}
+.facts dd{margin:0;letter-spacing:.06em}
+.story{display:grid;gap:22px}
+.story .lead{margin:0;font-size:clamp(20px,2.3vw,32px);line-height:1.5;font-weight:300;text-wrap:pretty}
+.story p{margin:0;color:#dcd6f2;max-width:64ch;font-size:clamp(15px,1.15vw,17px)}
+
+/* SECTION HEADS */
+.sec{padding-block:clamp(50px,7vw,100px)}
+.head{display:grid;grid-template-columns:auto 1fr;gap:6px 22px;align-items:baseline;margin-bottom:clamp(24px,3vw,40px)}
+.head .no{color:var(--violet)}
+.head h2{margin:0;font-family:var(--display);font-weight:400;font-size:clamp(22px,3.4vw,46px);line-height:1.1}
+.head p{grid-column:2;margin:6px 0 0;color:#dcd6f2;max-width:62ch}
+@media (max-width:640px){.head{grid-template-columns:1fr}.head p{grid-column:1}}
+
+/* VIDEO PAIRS — column widths follow each clip's aspect ratio so both share one height */
+.pair{display:grid;gap:6px;align-items:start}
+.pair.forest{grid-template-columns:minmax(0,1.91fr) minmax(0,.607fr)}
+.pair.dress{grid-template-columns:minmax(0,.697fr) minmax(0,2.667fr)}
+.media{position:relative;margin:0;background:var(--ink);overflow:hidden}
+.media video{width:100%;height:100%;object-fit:cover}
+.cap{display:flex;justify-content:space-between;gap:16px;padding:12px 2px 0;color:var(--muted)}
+.cap p{margin:0;font-family:var(--body);font-size:14px;letter-spacing:0;text-transform:none;color:#dcd6f2}
+.tag{position:absolute;z-index:2;top:10px;left:10px;background:rgba(0,0,0,.7);padding:3px 8px;border-radius:3px;font-size:10px}
+
+/* NEXT */
+.next{display:flex;justify-content:space-between;align-items:center;gap:20px;padding-block:clamp(40px,6vw,70px);border-top:1px solid var(--line)}
+.next b{font-family:var(--display);font-weight:400;font-size:clamp(20px,3.6vw,48px);line-height:1.1;transition:color .3s}
+.next:hover b{color:var(--magenta)}
+.base{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;border-top:1px solid var(--line);padding-block:22px 28px;color:var(--muted)}
+
+/* reveal */
+.rv{transition:opacity .9s ease,transform .9s cubic-bezier(.2,.7,.2,1)}
+.js .rv.pre{opacity:.001;transform:translateY(24px)}
+
+@media (max-width:900px){
+  .intro{grid-template-columns:1fr}
+  .pair.forest,.pair.dress{grid-template-columns:1fr}
+  .pair .tall{max-width:420px;width:100%;margin-inline:auto}
+}
+@media (max-width:520px){
+  .nav ul{gap:14px}
+  .nav ul a{font-size:10px;letter-spacing:.08em}
+  .nav .brand span{display:none}
+  .scroll-cue{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .js .rv.pre{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav" id="nav">
+  <a href="immertechx.html" class="brand" aria-label="Immertech X home"><span>IMMERTECH </span><b>X</b></a>
+  <ul>
+    <li><a href="work.html" class="on" data-i18n="nav.work">WORK</a></li>
+    <li><a href="2danimation.html" data-i18n="nav.2d">2D ANIMATION</a></li>
+    <li><a href="artists.html" data-i18n="nav.artists">ARTISTS</a></li>
+    <li><a href="immertechx.html#contact" data-i18n="nav.contact">CONTACT</a></li>
+  </ul>
+</nav>
+
+<header class="hero">
+  <video id="reel" muted loop playsinline preload="metadata" poster="work/147-project/spirit-poster.webp" aria-hidden="true">
+    <source src="work/147-project/spirit.mp4" type="video/mp4">
+  </video>
+  <div class="in wrap">
+    <a href="work.html" class="back mono" data-i18n="detail.all">← All work</a>
+    <div class="meta mono"><span data-i18n="p147.format">Game Dev</span><span>2026</span><span>Unreal Engine · Unity</span></div>
+    <h1>147 Project</h1>
+    <p class="quote" data-i18n="p147.quote">A dark forest, a lost child, and spirits that wake when you come near.</p>
+    <p class="by">by hi (GAME DEV)</p>
+  </div>
+  <div class="scroll-cue mono" aria-hidden="true"><span></span><b data-i18n="mos.scroll" style="font-weight:inherit">Scroll</b></div>
+</header>
+
+<main>
+  <section class="intro wrap">
+    <dl class="facts mono rv">
+      <div><dt data-i18n="fact.project">Project</dt><dd>147 Project</dd></div>
+      <div><dt data-i18n="fact.year">Year</dt><dd>2026</dd></div>
+      <div><dt data-i18n="fact.format">Format</dt><dd data-i18n="p147.format">Game Dev</dd></div>
+      <div><dt data-i18n="fact.engine">Engine</dt><dd>Unreal Engine, Unity</dd></div>
+    </dl>
+    <div class="story rv">
+      <p class="lead" data-i18n="p147.lead">147 Project is a dark-fantasy game prototype. The player follows The Kid through a haunted forest, meets its spirits and fights the creatures that live there.</p>
+      <p data-i18n="p147.p1">We built the forest scenes, spirit magic and combat in Unreal Engine, and prototyped a dress-up system and crowd test in Unity. The clips on this page are work-in-progress captures from development.</p>
+    </div>
+  </section>
+
+  <section class="sec wrap" aria-labelledby="h-forest">
+    <div class="head rv"><span class="no mono">01</span><h2 id="h-forest" data-i18n="p147.forest">The Forest</h2>
+      <p data-i18n="p147.forest.p">A spirit shrine under giant trees, a Tree Nymph who talks to the player, and the first fight with a red creature.</p></div>
+    <div class="pair forest">
+      <div>
+        <figure class="media" style="aspect-ratio:1280/670"><span class="tag mono">Unreal</span>
+          <video class="auto" muted loop playsinline preload="none" poster="work/147-project/nymph-poster.webp" aria-label="Spirit shrine in the forest with the Tree Nymph" data-i18n-attr="aria-label:p147.nymph.alt">
+            <source src="work/147-project/nymph.mp4" type="video/mp4">
+          </video></figure>
+        <div class="cap mono"><p data-i18n="p147.nymph.cap">Tree Nymph dialogue and the spirit shrine</p><span>14s</span></div>
+      </div>
+      <div class="tall">
+        <figure class="media" style="aspect-ratio:560/922"><span class="tag mono" data-i18n="p147.combat.tag">Combat</span>
+          <video class="auto" muted loop playsinline preload="none" poster="work/147-project/the-kid-poster.webp" aria-label="The Kid fighting a red creature in the forest" data-i18n-attr="aria-label:p147.kid.alt">
+            <source src="work/147-project/the-kid.mp4" type="video/mp4">
+          </video></figure>
+        <div class="cap mono"><p data-i18n="p147.kid.cap">The Kid vs. the red creature</p><span>11s</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec wrap" aria-labelledby="h-dress">
+    <div class="head rv"><span class="no mono">02</span><h2 id="h-dress" data-i18n="p147.dress">Dress-up</h2>
+      <p data-i18n="p147.dress.p">Players stack hats, masks, props and outfits on their character, then drop them into a crowd test with many customized characters at once.</p></div>
+    <div class="pair dress">
+      <div class="tall">
+        <figure class="media" style="aspect-ratio:620/890"><span class="tag mono" data-i18n="p147.dress.tag">Customization</span>
+          <video class="auto" muted loop playsinline preload="none" poster="work/147-project/dress-up-poster.webp" aria-label="Character customization screen stacking items on a character" data-i18n-attr="aria-label:p147.dressup.alt">
+            <source src="work/147-project/dress-up.mp4" type="video/mp4">
+          </video></figure>
+        <div class="cap mono"><p data-i18n="p147.dressup.cap">Stacking items</p><span>1:47</span></div>
+      </div>
+      <div>
+        <figure class="media" style="aspect-ratio:1280/480"><span class="tag mono">Unity</span>
+          <video class="auto" muted loop playsinline preload="none" poster="work/147-project/crowd-poster.webp" aria-label="Crowd of customized characters moving through a field of pillars" data-i18n-attr="aria-label:p147.crowd.alt">
+            <source src="work/147-project/crowd.mp4" type="video/mp4">
+          </video></figure>
+        <div class="cap mono"><p data-i18n="p147.crowd.cap">Crowd test with customized characters</p><span>2:02</span></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <a class="next" href="2danimation.html"><span class="mono" style="color:var(--muted)" data-i18n="mos.next">Next</span><b data-i18n="mos.next.title">2D Animation →</b></a>
+    <div class="base mono"><span>© 2026 Immertech X</span><a href="immertechx.html#contact" data-i18n="contact">Contact</a></div>
+  </div>
+</main>
+
+<script src="i18n.js"></script>
+<script>
+document.documentElement.classList.add('js');
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* nav turns solid once past the top */
+const navEl = document.getElementById('nav');
+const onScroll = () => navEl.classList.toggle('solid', scrollY > 40);
+addEventListener('scroll', onScroll, {passive:true}); onScroll();
+
+/* hero reel plays unless the visitor prefers reduced motion; pauses off screen */
+const reel = document.getElementById('reel');
+if (!reduce) reel.play().catch(()=>{});
+new IntersectionObserver(([e]) => { if (reduce) return; e.isIntersecting ? reel.play().catch(()=>{}) : reel.pause(); }).observe(reel);
+
+/* inline videos only play while on screen */
+const vio = new IntersectionObserver(es => es.forEach(e => {
+  const v = e.target;
+  if (e.isIntersecting && !reduce) { v.preload = 'auto'; v.play().catch(()=>{}); } else v.pause();
+}), {threshold:.25});
+document.querySelectorAll('video.auto').forEach(v => vio.observe(v));
+
+/* reveal on scroll */
+const io = new IntersectionObserver(es => es.forEach(en => { if (en.isIntersecting) { en.target.classList.remove('pre'); io.unobserve(en.target); } }), {threshold:.12});
+document.querySelectorAll('.rv').forEach(el => { if (el.getBoundingClientRect().top > innerHeight) { el.classList.add('pre'); io.observe(el); } });
+</script>
+</body>
+</html>

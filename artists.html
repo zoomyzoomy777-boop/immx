@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Artists · Immertech X</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Michroma&family=Archivo:wdth,wght@62..125,300..800&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: big title in a violet sky, then a numbered roster grid; each card glows in its role colour */
+:root{
+  --void:#000000;
+  --ink:#0b0418;
+  --indigo:#1d0556;
+  --violet:#7101ff;
+  --magenta:#4cff16;
+  --orange:#ff3600;
+  --fg:#ffffff;
+  --muted:#a59cc4;
+  --line:rgba(255,255,255,.14);
+  --display:"Michroma","Technovier","Archivo",system-ui,sans-serif;
+  --body:"Archivo",system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  --gut:clamp(16px,4vw,56px);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--void);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--magenta);outline-offset:3px}
+.mono{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase}
+
+/* NAV */
+.nav{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;justify-content:space-between;gap:24px;padding:calc(18px + env(safe-area-inset-top,0px)) var(--gut) 18px;background:rgba(0,0,0,.72);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.nav .brand{font-family:var(--display);font-size:15px;letter-spacing:.08em;white-space:nowrap}
+.nav .brand b{color:var(--violet);font-weight:400}
+.nav ul{display:flex;gap:28px;list-style:none;margin:0;padding:0}
+.nav ul a{font-family:var(--display);font-weight:400;font-size:11px;letter-spacing:.14em;position:relative;padding-block:6px;white-space:nowrap}
+.nav ul a::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--magenta);transform:scaleX(0);transform-origin:left;transition:transform .35s}
+.nav ul a:hover::after,.nav ul a.on::after{transform:scaleX(1)}
+
+/* HERO */
+.hero{position:relative;padding:calc(74px + env(safe-area-inset-top,0px) + clamp(48px,10vh,120px)) var(--gut) clamp(40px,6vw,72px);
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 115%,rgba(113,1,255,.35),transparent 70%),
+    radial-gradient(ellipse at 50% 0%,var(--indigo) 0%,var(--ink) 45%,var(--void) 90%)}
+.in{max-width:1500px;margin:0 auto}
+.hero h1{margin:0 0 18px;font-family:var(--display);font-weight:400;font-size:clamp(40px,9vw,140px);line-height:1}
+.hero h1 em{font-style:normal;color:var(--violet);text-shadow:0 0 40px rgba(113,1,255,.6)}
+.hero p{margin:0 0 18px;max-width:58ch;color:#dcd6f2}
+/* ROSTER */
+.roster{border-top:1px solid var(--line);padding:clamp(32px,5vw,64px) var(--gut) clamp(60px,8vw,110px)}
+.grid{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,260px),1fr));gap:14px}
+.card{--c:var(--violet);position:relative;overflow:hidden;display:grid;grid-template-rows:auto 1fr;gap:22px;min-height:180px;padding:20px;border:1px solid var(--line);border-radius:6px;
+  background:radial-gradient(ellipse 120% 80% at 100% 0%,color-mix(in srgb,var(--c) 22%,transparent),transparent 60%),rgba(13,6,32,.55);
+  transition:border-color .3s,transform .35s cubic-bezier(.2,.7,.2,1),box-shadow .3s}
+.card:hover,.card:focus-within{border-color:var(--c);transform:translateY(-3px);box-shadow:0 0 28px color-mix(in srgb,var(--c) 35%,transparent)}
+.card[hidden]{display:none}
+.card .top{display:flex;justify-content:space-between;align-items:center;color:var(--muted)}
+.card .dot{width:10px;height:10px;border-radius:50%;background:var(--c);box-shadow:0 0 12px var(--c)}
+.card h2{margin:0;align-self:end;font-family:var(--body);font-weight:500;font-size:clamp(20px,1.8vw,24px);line-height:1.25;overflow-wrap:anywhere}
+.card .role{color:var(--c);margin-top:6px;display:block}
+.card.has-pic{grid-template-rows:auto auto 1fr}
+.card.has-pic:has(.links){grid-template-rows:auto auto 1fr auto}
+.card .pic{margin:-20px -20px 0;aspect-ratio:1440/1304;overflow:hidden;border-bottom:1px solid var(--line)}
+.card .pic img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+.card:hover .pic img{transform:scale(1.04)}
+.card .links{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:12px}
+.card .links a{display:inline-flex;align-items:center;gap:7px;color:var(--muted);text-transform:none;letter-spacing:.04em;transition:color .25s}
+.card .links svg{width:15px;height:15px;flex:none}
+.card .links a:hover{color:var(--fg)}
+
+/* FOOT */
+.foot{padding:28px var(--gut);color:var(--muted);border-top:1px solid var(--line)}
+.foot-in{max-width:1500px;margin:0 auto;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.foot a:hover{color:var(--magenta)}
+.ci-strip{display:grid;grid-template-columns:repeat(5,1fr);height:6px}.ci-strip i:nth-child(1){background:#000;outline:1px solid var(--line)}.ci-strip i:nth-child(2){background:var(--violet)}.ci-strip i:nth-child(3){background:#fff}.ci-strip i:nth-child(4){background:var(--orange)}.ci-strip i:nth-child(5){background:var(--magenta)}
+
+@media (max-width:520px){
+  .nav ul{gap:14px}
+  .nav ul a{font-size:10px;letter-spacing:.08em}
+  .nav .brand span{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav" id="nav">
+  <a href="immertechx.html" class="brand" aria-label="Immertech X home"><span>IMMERTECH </span><b>X</b></a>
+  <ul>
+    <li><a href="work.html" data-i18n="nav.work">WORK</a></li>
+    <li><a href="2danimation.html" data-i18n="nav.2d">2D ANIMATION</a></li>
+    <li><a href="artists.html" class="on" data-i18n="nav.artists">ARTISTS</a></li>
+    <li><a href="immertechx.html#contact" data-i18n="nav.contact">CONTACT</a></li>
+  </ul>
+</nav>
+
+<main>
+  <header class="hero">
+    <div class="in">
+      <h1 data-i18n="art.title">THE <em>ARTISTS</em></h1>
+      <p data-i18n="art.intro">The people behind the work: concept, modelling, rigging, animation and real-time artists who build our worlds together.</p>    </div>
+  </header>
+
+  <section class="roster" aria-label="Artists">
+    <div class="in"><ul class="grid" id="grid"></ul></div>
+  </section>
+</main>
+
+<footer>
+  <div class="foot mono"><div class="foot-in"><span>© 2026 Immertech X</span><a href="immertechx.html#contact" data-i18n="contact">Contact</a></div></div>
+  <div class="ci-strip" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+</footer>
+
+<script src="i18n.js"></script>
+<script>
+// Roster
+const ARTISTS = [
+  {name:'zoomyyz',                 role:'rnd', img:'img/artists/zoomyyz.webp', ig:'zoomyyz', web:'https://zoomyzoomy777-boop.github.io/zoomyyz/'},
+];
+// each role's glow colour
+const ROLES = {
+  concept:'#ff3600', modeler:'#ff9a3c', rigger:'#ffd23f', animator:'#4cff16',
+  unreal:'#2fd6ff', '2d':'#ff4fb8', rnd:'#9b5cff',
+};
+
+const grid = document.getElementById('grid');
+
+const esc = s => s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function render(){
+  grid.innerHTML = ARTISTS.map((a, i) => `
+    <li class="card${a.img ? ' has-pic' : ''}" data-role="${a.role}" style="--c:${ROLES[a.role]}">
+      ${a.img ? `<div class="pic"><img src="${esc(a.img)}" alt="${esc(a.name)}" loading="lazy"></div>` : ''}
+      <div class="top mono"><span>${String(i + 1).padStart(2, '0')}</span><i class="dot" aria-hidden="true"></i></div>
+      <h2>${esc(a.name)}<span class="role mono">${t('role.' + a.role)}</span></h2>
+      ${a.ig || a.web ? `<div class="links mono">
+        ${a.ig ? `<a href="https://www.instagram.com/${encodeURIComponent(a.ig)}/" target="_blank" rel="noopener" aria-label="${esc(a.name)} on Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".6" fill="currentColor"/></svg>@${esc(a.ig)}</a>` : ''}
+        ${a.web ? `<a href="${esc(a.web)}" target="_blank" rel="noopener" aria-label="${esc(a.name)} website"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9S9.5 5.7 12 3z"/></svg>Website</a>` : ''}
+      </div>` : ''}
+    </li>`).join('');
+}
+
+render();
+addEventListener('langchange', render);
+</script>
+</body>
+</html>

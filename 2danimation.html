@@ -56,6 +56,7 @@ button{font:inherit;color:inherit}
 .sky h1{margin:0;font-family:var(--display);font-weight:400;font-size:clamp(32px,8vw,128px);line-height:1;letter-spacing:0}
 .sky h1 em{font-style:normal;color:var(--violet);text-shadow:0 0 40px rgba(113,1,255,.6)}
 .sky p{margin:0;max-width:56ch;color:#dcd6f2}
+.sky .by{margin:0;color:var(--muted);font-size:clamp(14px,1.2vw,17px);letter-spacing:.02em}
 .sky .stats{color:var(--muted);display:flex;gap:22px;flex-wrap:wrap}
 
 .ch{position:absolute;bottom:calc(var(--b) * 1cqh);left:calc(var(--x) * 1%);height:calc(var(--h) * 1cqh);margin:0;padding:0;border:0;background:none;cursor:pointer;
@@ -125,8 +126,9 @@ button{font:inherit;color:inherit}
 <nav class="nav" id="nav">
   <a href="immertechx.html" class="brand" aria-label="Immertech X home"><span>IMMERTECH </span><b>X</b></a>
   <ul>
-    <li><a href="memories-of-sacrifice.html" data-i18n="nav.work">WORK</a></li>
+    <li><a href="work.html" data-i18n="nav.work">WORK</a></li>
     <li><a href="2danimation.html" class="on" data-i18n="nav.2d">2D ANIMATION</a></li>
+    <li><a href="artists.html" data-i18n="nav.artists">ARTISTS</a></li>
     <li><a href="immertechx.html#contact" data-i18n="nav.contact">CONTACT</a></li>
   </ul>
 </nav>
@@ -135,6 +137,7 @@ button{font:inherit;color:inherit}
   <div class="sky">
     <h1 data-i18n="2d.title">2D <em>ANIMATION</em></h1>
     <p data-i18n="2d.intro">Every character from our 2D team, standing together. Hover to meet one, click to watch the full loop.</p>
+    <p class="by">by Bu</p>
     <div class="stats mono" id="stats"></div>
   </div>
   <div class="scroller" id="scroller">

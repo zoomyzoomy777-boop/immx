@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Work · Immertech X</title>
+<meta name="description" content="Projects by Immertech X: interactive mapping, real-time worlds and game prototypes.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Michroma&family=Archivo:wdth,wght@62..125,300..800&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+Thai:wght@300;400;500&display=swap">
+<style>
+/* Layout: project index — page title, then one large cinematic card per project (cover image, hover plays its reel) */
+:root{
+  --void:#000000;
+  --ink:#0b0418;
+  --violet:#7101ff;
+  --magenta:#4cff16;
+  --fg:#ffffff;
+  --muted:#a59cc4;
+  --line:rgba(255,255,255,.14);
+  --display:"Michroma","Technovier","Archivo","Noto Sans Thai",system-ui,sans-serif;
+  --body:"Archivo","Noto Sans Thai",system-ui,sans-serif;
+  --mono:"JetBrains Mono","Noto Sans Thai",ui-monospace,Menlo,monospace;
+  --gut:clamp(16px,4vw,56px);
+  --max:1500px;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--void);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+img,video{display:block;max-width:100%}
+:focus-visible{outline:2px solid var(--magenta);outline-offset:3px}
+.mono{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase}
+.wrap{max-width:calc(var(--max) + 2*var(--gut));margin:0 auto;padding-inline:var(--gut)}
+
+/* NAV */
+.nav{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;justify-content:space-between;gap:24px;padding:calc(18px + env(safe-area-inset-top,0px)) var(--gut) 18px;transition:background .3s,backdrop-filter .3s}
+.nav.solid{background:rgba(0,0,0,.72);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.nav .brand{font-family:var(--display);font-size:15px;letter-spacing:.08em;white-space:nowrap}
+.nav .brand b{color:var(--violet);font-weight:400}
+.nav ul{display:flex;gap:28px;list-style:none;margin:0;padding:0}
+.nav ul a{font-family:var(--display);font-weight:400;font-size:11px;letter-spacing:.14em;position:relative;padding-block:6px;white-space:nowrap}
+.nav ul a::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--magenta);transform:scaleX(0);transform-origin:left;transition:transform .35s}
+.nav ul a:hover::after,.nav ul a.on::after{transform:scaleX(1)}
+
+/* HEAD */
+.top{padding-top:clamp(120px,14vw,190px);padding-bottom:clamp(30px,4vw,56px);display:flex;justify-content:space-between;align-items:end;gap:20px;flex-wrap:wrap}
+.top h1{margin:0;font-family:var(--display);font-weight:400;font-size:clamp(34px,7vw,110px);line-height:1;letter-spacing:0}
+.top p{margin:0;color:var(--muted);max-width:44ch}
+
+/* PROJECT CARDS */
+.list{display:grid;gap:clamp(14px,2vw,24px);padding-bottom:clamp(60px,8vw,110px)}
+.card{position:relative;display:block;aspect-ratio:21/9;min-height:300px;overflow:hidden;background:var(--ink);isolation:isolate}
+.card img,.card video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform 1.2s cubic-bezier(.2,.7,.2,1),filter .6s,opacity .6s}
+.card img{filter:brightness(.7) saturate(.95)}
+.card video{opacity:0}
+.card.playing video{opacity:1}
+.card:hover img,.card:focus-visible img,.card:hover video,.card:focus-visible video{transform:scale(1.04)}
+.card:hover img,.card:focus-visible img{filter:brightness(.9) saturate(1.1)}
+.card::after{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(to top,rgba(0,0,0,.88),rgba(0,0,0,.2) 45%,transparent 70%)}
+.card .info{position:absolute;z-index:2;left:clamp(18px,3vw,40px);right:clamp(18px,3vw,40px);bottom:clamp(18px,3vw,36px);display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px 24px;align-items:end}
+.card .meta{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px 20px;color:var(--muted)}
+.card h2{margin:0;font-family:var(--display);font-weight:400;font-size:clamp(24px,4.4vw,64px);line-height:1.05;letter-spacing:0;text-shadow:0 4px 30px rgba(0,0,0,.7)}
+.card .lead{grid-column:1;margin:0;color:#dcd6f2;max-width:58ch;font-size:clamp(14px,1.1vw,16px)}
+.card .arrow{grid-column:2;grid-row:2/4;width:clamp(44px,4vw,58px);height:clamp(44px,4vw,58px);border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;font-size:20px;transition:.35s}
+.card:hover .arrow,.card:focus-visible .arrow{background:var(--magenta);color:#000;border-color:var(--magenta);transform:rotate(-45deg)}
+.card .no{position:absolute;z-index:2;top:clamp(14px,2vw,24px);left:clamp(18px,3vw,40px);color:var(--muted)}
+
+.base{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;border-top:1px solid var(--line);padding-block:22px 28px;color:var(--muted)}
+
+@media (max-width:700px){
+  .card{aspect-ratio:4/5;min-height:0}
+  .card .lead{display:none}
+}
+@media (max-width:520px){
+  .nav ul{gap:14px}
+  .nav ul a{font-size:10px;letter-spacing:.08em}
+  .nav .brand span{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{transition:none!important}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav" id="nav">
+  <a href="immertechx.html" class="brand" aria-label="Immertech X home"><span>IMMERTECH </span><b>X</b></a>
+  <ul>
+    <li><a href="work.html" class="on" data-i18n="nav.work">WORK</a></li>
+    <li><a href="2danimation.html" data-i18n="nav.2d">2D ANIMATION</a></li>
+    <li><a href="artists.html" data-i18n="nav.artists">ARTISTS</a></li>
+    <li><a href="immertechx.html#contact" data-i18n="nav.contact">CONTACT</a></li>
+  </ul>
+</nav>
+
+<main class="wrap">
+  <header class="top">
+    <h1 data-i18n="work.title">Work</h1>
+    <p data-i18n="work.intro">Real-time worlds, interactive installations and games, built by our team.</p>
+  </header>
+
+  <div class="list">
+    <a class="card" href="147-project.html">
+      <span class="no mono">01</span>
+      <img src="work/147-project/nymph-poster.webp" alt="" loading="lazy">
+      <video muted loop playsinline preload="none" aria-hidden="true"><source src="work/147-project/spirit.mp4" type="video/mp4"></video>
+      <div class="info">
+        <div class="meta mono"><span data-i18n="p147.format">Game Dev</span><span>2026</span><span>Unreal Engine · Unity</span></div>
+        <h2>147 Project</h2>
+        <p class="lead" data-i18n="p147.quote">A dark forest, a lost child, and spirits that wake when you come near.</p>
+        <span class="arrow" aria-hidden="true">→</span>
+      </div>
+    </a>
+
+    <a class="card" href="memories-of-sacrifice.html">
+      <span class="no mono">02</span>
+      <img src="work/memories-of-sacrifice/hero.webp" alt="" loading="lazy">
+      <video muted loop playsinline preload="none" aria-hidden="true"><source src="work/memories-of-sacrifice/flythrough.mp4" type="video/mp4"></video>
+      <div class="info">
+        <div class="meta mono"><span data-i18n="mos.format">Interactive Mapping</span><span>2024</span><span>Unreal Engine</span></div>
+        <h2>Memories of Sacrifice</h2>
+        <p class="lead" data-i18n="work.mos.lead">A spirit zoo where a skeletal deer watches in silence. Shown at Chiang Mai Design Week 2024.</p>
+        <span class="arrow" aria-hidden="true">→</span>
+      </div>
+    </a>
+  </div>
+
+  <div class="base mono"><span>© 2026 Immertech X</span><a href="immertechx.html#contact" data-i18n="contact">Contact</a></div>
+</main>
+
+<script src="i18n.js"></script>
+<script>
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* nav turns solid once past the top */
+const navEl = document.getElementById('nav');
+const onScroll = () => navEl.classList.toggle('solid', scrollY > 40);
+addEventListener('scroll', onScroll, {passive:true}); onScroll();
+
+/* each card plays its reel while hovered or focused */
+if (!reduce) document.querySelectorAll('.card').forEach(card => {
+  const v = card.querySelector('video');
+  const play = () => { v.preload = 'auto'; v.play().then(() => card.classList.add('playing')).catch(()=>{}); };
+  const stop = () => { v.pause(); card.classList.remove('playing'); };
+  card.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') play(); });
+  card.addEventListener('pointerleave', stop);
+  card.addEventListener('focus', play);
+  card.addEventListener('blur', stop);
+});
+</script>
+</body>
+</html>

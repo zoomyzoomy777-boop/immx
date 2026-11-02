@@ -57,6 +57,7 @@ button{font:inherit;color:inherit}
 .hero .in{position:relative;z-index:2;padding-top:140px;padding-bottom:clamp(40px,7vw,90px);display:grid;gap:20px;width:100%}
 .hero h1{margin:0;font-family:var(--display);font-weight:400;font-size:clamp(34px,7.4vw,120px);line-height:1;letter-spacing:0;text-shadow:0 4px 40px rgba(0,0,0,.8)}
 .hero .quote{margin:0;font-size:clamp(17px,1.8vw,24px);font-weight:300;color:#c8102e;text-shadow:0 0 24px rgba(200,16,46,.5)}
+.hero .by{margin:-8px 0 0;font-size:clamp(14px,1.2vw,17px);color:var(--muted);letter-spacing:.02em}
 .hero .meta{display:flex;flex-wrap:wrap;gap:8px 22px;color:var(--muted)}
 .back{display:inline-flex;align-items:center;gap:10px;color:var(--muted);width:max-content}
 .back:hover{color:var(--fg)}
@@ -174,8 +175,9 @@ button{font:inherit;color:inherit}
 <nav class="nav" id="nav">
   <a href="immertechx.html" class="brand" aria-label="Immertech X home"><span>IMMERTECH </span><b>X</b></a>
   <ul>
-    <li><a href="memories-of-sacrifice.html" class="on" data-i18n="nav.work">WORK</a></li>
+    <li><a href="work.html" class="on" data-i18n="nav.work">WORK</a></li>
     <li><a href="2danimation.html" data-i18n="nav.2d">2D ANIMATION</a></li>
+    <li><a href="artists.html" data-i18n="nav.artists">ARTISTS</a></li>
     <li><a href="immertechx.html#contact" data-i18n="nav.contact">CONTACT</a></li>
   </ul>
 </nav>
@@ -185,10 +187,11 @@ button{font:inherit;color:inherit}
     <source src="work/memories-of-sacrifice/flythrough.mp4" type="video/mp4">
   </video>
   <div class="in wrap">
-    <a href="immertechx.html" class="back mono" data-i18n="mos.home">← Home</a>
+    <a href="work.html" class="back mono" data-i18n="detail.all">← All work</a>
     <div class="meta mono"><span data-i18n="mos.format">Interactive Mapping</span><span>2024</span><span>Unreal Engine</span></div>
     <h1>Memories of Sacrifice</h1>
     <p class="quote" data-i18n="mos.quote">“เราคือหนึ่งเดียวกับสรรพสิ่ง ท่ามกลางจุดจบและจุดเริ่มต้น”</p>
+    <p class="by">by zoomyyz</p>
   </div>
   <div class="scroll-cue mono" aria-hidden="true"><span></span><b data-i18n="mos.scroll" style="font-weight:inherit">Scroll</b></div>
 </header>
@@ -305,7 +308,7 @@ button{font:inherit;color:inherit}
   </section>
 
   <div class="wrap">
-    <a class="next" href="2danimation.html"><span class="mono" style="color:var(--muted)" data-i18n="mos.next">Next</span><b data-i18n="mos.next.title">2D Animation →</b></a>
+    <a class="next" href="147-project.html"><span class="mono" style="color:var(--muted)" data-i18n="mos.next">Next</span><b data-i18n="mos.next.147">147 Project →</b></a>
     <div class="base mono"><span>© 2026 Immertech X</span><a href="immertechx.html#contact" data-i18n="contact">Contact</a></div>
   </div>
 </main>
