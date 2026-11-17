@@ -112,9 +112,9 @@ const DICT = {
   'work.intro':     {en:'Real-time worlds, interactive installations and games, built by our team.',
                      th:'โลกแบบเรียลไทม์ อินสตอลเลชันแบบอินเทอร์แอคทีฟ และเกม ที่ทีมของเราสร้างขึ้น',
                      ja:'私たちのチームがつくったリアルタイムの世界、インタラクティブ・インスタレーション、そしてゲーム。'},
-  'work.mos.lead':  {en:'A spirit zoo where a skeletal deer watches in silence. Shown at Chiang Mai Design Week 2024.',
-                     th:'สวนสัตว์แห่งวิญญาณที่กวางโครงกระดูกเฝ้ามองอย่างเงียบงัน จัดแสดงที่ Chiang Mai Design Week 2024',
-                     ja:'骨の鹿が静かに見つめる精霊の動物園。Chiang Mai Design Week 2024 で展示。'},
+  'work.mos.lead':  {en:'A spirit zoo where a skeletal deer watches in silence.',
+                     th:'สวนสัตว์แห่งวิญญาณที่กวางโครงกระดูกเฝ้ามองอย่างเงียบงัน',
+                     ja:'骨の鹿が静かに見つめる精霊の動物園。'},
 
   // 147 Project
   'p147.format':    {en:'Game Dev', th:'พัฒนาเกม', ja:'ゲーム開発'},

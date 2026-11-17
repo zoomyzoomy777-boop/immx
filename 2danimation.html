@@ -179,7 +179,8 @@ button{font:inherit;color:inherit}
 <script src="i18n.js"></script>
 <script src="2Dani/gallery-data.js"></script>
 <script>
-const GROUPS = window.ANI_GROUPS || [];
+const HIDDEN = ['ctx', 'sjl']; // sets kept in the data but not shown on the site
+const GROUPS = (window.ANI_GROUPS || []).filter(g => !HIDDEN.includes(g.id));
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const url = p => encodeURI(p).replace(/#/g,'%23');
 const mb = b => b >= 1048576 ? (b/1048576).toFixed(b >= 10485760 ? 0 : 1)+' MB' : Math.round(b/1024)+' KB';
